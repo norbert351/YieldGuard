@@ -1,0 +1,277 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/AaveStrategy.sol": {
+      "lastModificationDate": 1783012808857,
+      "contentHash": "e6ebf410a20d36c25306b4cb0c587221",
+      "sourceName": "contracts/AaveStrategy.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BaseStrategy.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "AaveStrategy"
+      ]
+    },
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/BaseStrategy.sol": {
+      "lastModificationDate": 1783177808349,
+      "contentHash": "b3e53f265a35a39c34531688f9899567",
+      "sourceName": "contracts/BaseStrategy.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IYieldStrategy.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "BaseStrategy"
+      ]
+    },
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/interfaces/IYieldStrategy.sol": {
+      "lastModificationDate": 1783012808557,
+      "contentHash": "3b68cc4c4795c025227985318f1b9bf6",
+      "sourceName": "contracts/interfaces/IYieldStrategy.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "IYieldStrategy"
+      ]
+    },
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/YieldGuardFactory.sol": {
+      "lastModificationDate": 1783177823867,
+      "contentHash": "0d3db6c87f8e7985c225ab794e9b69af",
+      "sourceName": "contracts/YieldGuardFactory.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./YieldGuardVault.sol",
+        "./AaveStrategy.sol",
+        "./MorphoStrategy.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "YieldGuardFactory"
+      ]
+    },
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/MorphoStrategy.sol": {
+      "lastModificationDate": 1783012808958,
+      "contentHash": "1961fca81699b8ddeeee52cd0071c089",
+      "sourceName": "contracts/MorphoStrategy.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BaseStrategy.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "MorphoStrategy"
+      ]
+    },
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/YieldGuardVault.sol": {
+      "lastModificationDate": 1783656554394,
+      "contentHash": "ab119213de3b5ef4920d8619e1cd0a62",
+      "sourceName": "contracts/YieldGuardVault.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IYieldStrategy.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "IERC20",
+        "YieldGuardVault"
+      ]
+    },
+    "/home/ubuntu/yieldguard/packages/contracts/contracts/mocks/MockERC20.sol": {
+      "lastModificationDate": 1783012809143,
+      "contentHash": "88458346604c8797f7b7e2154b3b56a0",
+      "sourceName": "contracts/mocks/MockERC20.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "MockERC20"
+      ]
+    }
+  }
+}

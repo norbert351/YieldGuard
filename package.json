@@ -12,11 +12,15 @@
     "lint": "npm run lint -w apps/web && npm run lint -w apps/api"
   },
   "workspaces": [
-    "packages/*",
+    "packages/shared",
     "apps/*"
   ],
   "devDependencies": {
     "concurrently": "^8.2.2",
     "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@web3modal/ethers": "^5.1.11",
+    "react-is": "^19.2.7"
   }
 }
