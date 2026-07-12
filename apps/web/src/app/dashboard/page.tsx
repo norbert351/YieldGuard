@@ -197,7 +197,6 @@ export default function DashboardPage() {
   }, [data, checkOwner]);
 
   const harvest = useCallback(async () => {
-    if (!isOwner) return;
     try {
       await harvestAll();
       await refreshVaultData();
@@ -206,7 +205,7 @@ export default function DashboardPage() {
     } catch (e: any) {
       setActionError(e?.shortMessage || e?.message || 'Harvest failed');
     }
-  }, [isOwner, harvestAll, refreshVaultData]);
+  }, [harvestAll, refreshVaultData]);
 
   const handleAllocate = useCallback(
     async (strategy: string, label: string) => {

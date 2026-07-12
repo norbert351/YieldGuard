@@ -134,7 +134,6 @@ export default function AutoCompoundPanel({
         lastHarvest: now,
         nextHarvest: now + state.intervalHours * 3600000,
       });
-      // Refresh real on-chain yield after successful harvest
       await refreshYieldFromChain();
     } catch (e: any) {
       setErrorMsg(e?.shortMessage || e?.message || 'Harvest transaction failed');
@@ -142,17 +141,15 @@ export default function AutoCompoundPanel({
     }
   }, [state.harvesting, state.intervalHours, onHarvest]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keep ref in sync so timer always calls latest executeHarvest
   executeRef.current = executeHarvest;
 
-  // Auto-harvest timer — uses ref to avoid stale closure
+  // Auto-harvest timer (owner-only scheduling)
   useEffect(() => {
     if (!state.enabled || !isOwner) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
 
-    // Fire once immediately if nextHarvest is overdue
     if (state.nextHarvest && Date.now() >= state.nextHarvest && !harvestedRef.current) {
       executeRef.current();
     }
@@ -180,6 +177,9 @@ export default function AutoCompoundPanel({
     if (state.enabled) {
       if (timerRef.current) clearInterval(timerRef.current);
       save({ enabled: false, nextHarvest: null });
+    } else if (!isOwner) {
+      setErrorMsg('Only the vault owner can enable auto-compound scheduling.');
+      return;
     } else {
       const now = Date.now();
       harvestedRef.current = false;
@@ -194,7 +194,6 @@ export default function AutoCompoundPanel({
   function changeInterval(h: number) {
     setErrorMsg(null);
     save({ intervalHours: h });
-    // Reset nextHarvest so the new interval takes effect
     if (state.enabled) {
       const now = Date.now();
       save({ nextHarvest: now + h * 3600000 });
@@ -215,20 +214,13 @@ export default function AutoCompoundPanel({
         )}
       </div>
 
-      {!isOwner ? (
-        <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-3">
-          <Clock className="h-4 w-4 text-surface-500" />
-          <p className="text-xs text-surface-400">
-            Auto-compound controls require vault owner access.
-          </p>
-        </div>
-      ) : !hasAllocatedCapital ? (
+      {!hasAllocatedCapital ? (
         <div className="flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/5 p-3">
           <RefreshCcw className="h-4 w-4 text-warning" />
           <div>
             <p className="text-xs font-medium text-warning/90">No capital deployed</p>
             <p className="mt-0.5 text-[11px] text-warning/70">
-              Allocate USDC to a strategy (Aave, Morpho) first before enabling auto-compound.
+              Allocate USDC to a strategy (Aave, Morpho) first before harvesting.
             </p>
           </div>
         </div>
@@ -241,27 +233,34 @@ export default function AutoCompoundPanel({
             </div>
           )}
 
+          {/* Harvest actions — permissionless (harvestAll is public on-chain) */}
           <div className="mb-3 flex items-center gap-2">
-            <button
-              onClick={toggle}
-              className={`flex-1 rounded-xl border py-3 text-sm font-semibold transition-all ${
-                state.enabled
-                  ? 'border-success/30 bg-success/10 text-success hover:bg-success/15'
-                  : 'border-brand-500/30 bg-brand-500/10 text-brand-400 hover:bg-brand-500/15'
-              }`}
-            >
-              {state.enabled ? (
-                <span className="flex items-center justify-center gap-2">
-                  <TimerOff className="h-4 w-4" />
-                  Stop auto-compound
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Timer className="h-4 w-4" />
-                  Enable auto-compound
-                </span>
-              )}
-            </button>
+            {isOwner ? (
+              <button
+                onClick={toggle}
+                className={`flex-1 rounded-xl border py-3 text-sm font-semibold transition-all ${
+                  state.enabled
+                    ? 'border-success/30 bg-success/10 text-success hover:bg-success/15'
+                    : 'border-brand-500/30 bg-brand-500/10 text-brand-400 hover:bg-brand-500/15'
+                }`}
+              >
+                {state.enabled ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <TimerOff className="h-4 w-4" />
+                    Stop auto-compound
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Timer className="h-4 w-4" />
+                    Enable auto-compound
+                  </span>
+                )}
+              </button>
+            ) : (
+              <div className="flex-1 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-xs text-surface-400">
+                Auto-schedule requires vault owner. Anyone can harvest once.
+              </div>
+            )}
             {state.harvesting && (
               <span className="flex h-7 w-7 shrink-0 items-center justify-center">
                 <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500/30 border-t-brand-500" />
@@ -269,7 +268,20 @@ export default function AutoCompoundPanel({
             )}
           </div>
 
-          {state.enabled && (
+          {/* One-shot harvest button — ANYONE can call */}
+          <button
+            onClick={async () => {
+              await executeHarvest();
+              await refreshYieldFromChain();
+            }}
+            disabled={state.harvesting}
+            className="mb-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/10 py-2.5 text-xs font-medium text-brand-400 transition-all hover:bg-brand-500/20 disabled:opacity-50"
+          >
+            <Play className="h-3.5 w-3.5" />
+            {state.harvesting ? 'Harvesting…' : 'Harvest now (any wallet)'}
+          </button>
+
+          {state.enabled && isOwner && (
             <>
               <div className="mb-3 flex items-center gap-2">
                 {[4, 6, 12, 24].map((h) => (
@@ -314,25 +326,11 @@ export default function AutoCompoundPanel({
               </div>
             </>
           )}
-
-          {!state.enabled && (
-            <button
-              onClick={async () => {
-                await executeHarvest();
-                await refreshYieldFromChain();
-              }}
-              disabled={state.harvesting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/10 py-2.5 text-xs font-medium text-brand-400 transition-all hover:bg-brand-500/20 disabled:opacity-50"
-            >
-              <Play className="h-3.5 w-3.5" />
-              {state.harvesting ? 'Harvesting…' : 'Harvest now (one-shot)'}
-            </button>
-          )}
         </>
       )}
 
       <p className="mt-3 text-[10px] text-surface-500">
-        Auto-compound harvests yield and re-invests into strategies on a recurring schedule.
+        harvestAll() is permissionless on-chain. Anyone connected can trigger a harvest. Auto-schedule requires vault owner.
       </p>
     </div>
   );
