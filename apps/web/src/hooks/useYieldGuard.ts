@@ -142,7 +142,7 @@ export function useYieldGuard() {
         eventNames.map((name) => [eventInterface.getEvent(name)!.topicHash, name]),
       );
 
-      const BATCH = 100;
+      const BATCH = 50000;
       const events: any[] = [];
 
       for (let start = fromBlock; start <= currentBlock; start += BATCH) {
