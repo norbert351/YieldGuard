@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import {
+  AlertTriangle,
   Clock,
   Play,
   RefreshCcw,
@@ -15,8 +16,8 @@ import { StatusBadge } from '@/components/ui/empty-state';
 interface CompoundState {
   enabled: boolean;
   intervalHours: number;
-  lastHarvest: number | null; // timestamp
-  nextHarvest: number | null; // timestamp
+  lastHarvest: number | null;
+  nextHarvest: number | null;
   harvesting: boolean;
   harvestCount: number;
   yieldAccumulated: number;
@@ -44,7 +45,7 @@ export default function AutoCompoundPanel({
   onHarvest: () => Promise<void>;
   hasAllocatedCapital: boolean;
 }) {
-  const { harvestAll, getVaultEvents } = useYieldGuard();
+  const { getVaultEvents } = useYieldGuard();
   const [state, setState] = useState<CompoundState>({
     enabled: false,
     intervalHours: 6,
@@ -57,8 +58,10 @@ export default function AutoCompoundPanel({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const [nextIn, setNextIn] = useState<string>('—');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const harvestedRef = useRef(false);
 
-  // Load saved state
+  // Load saved state + events on mount
   useEffect(() => {
     const saved = loadState();
     if (saved.enabled) {
@@ -72,8 +75,12 @@ export default function AutoCompoundPanel({
         yieldAccumulated: saved.yieldAccumulated || 0,
       }));
     }
-    // Load real event count
-    getVaultEvents(90).then((events) => {
+    refreshYieldFromChain();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function refreshYieldFromChain() {
+    try {
+      const events = await getVaultEvents(90);
       const harvests = events.filter((e: any) => e.name === 'Harvested');
       const totalYield = harvests.reduce(
         (s: number, e: any) => s + (Number(e.args?.totalYield) / 1e18 || 0),
@@ -84,10 +91,10 @@ export default function AutoCompoundPanel({
         harvestCount: harvests.length,
         yieldAccumulated: Math.round(totalYield * 10000) / 10000,
       }));
-    });
-  }, [getVaultEvents]);
+    } catch {}
+  }
 
-  // Countdown timer
+  // Countdown tick
   useEffect(() => {
     if (state.nextHarvest && state.enabled) {
       const tick = () => {
@@ -111,22 +118,54 @@ export default function AutoCompoundPanel({
     }
   }, [state.nextHarvest, state.enabled]);
 
-  // Auto-harvest timer
+  // Use a ref to always have the latest executeHarvest in the timer callback
+  const executeRef = useRef<() => Promise<void>>(async () => {});
+
+  const executeHarvest = useCallback(async () => {
+    if (state.harvesting) return;
+    setErrorMsg(null);
+    setState((s) => ({ ...s, harvesting: true }));
+    try {
+      await onHarvest();
+      harvestedRef.current = true;
+      const now = Date.now();
+      save({
+        harvesting: false,
+        lastHarvest: now,
+        nextHarvest: now + state.intervalHours * 3600000,
+      });
+      // Refresh real on-chain yield after successful harvest
+      await refreshYieldFromChain();
+    } catch (e: any) {
+      setErrorMsg(e?.shortMessage || e?.message || 'Harvest transaction failed');
+      setState((s) => ({ ...s, harvesting: false }));
+    }
+  }, [state.harvesting, state.intervalHours, onHarvest]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep ref in sync so timer always calls latest executeHarvest
+  executeRef.current = executeHarvest;
+
+  // Auto-harvest timer — uses ref to avoid stale closure
   useEffect(() => {
     if (!state.enabled || !isOwner) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
 
+    // Fire once immediately if nextHarvest is overdue
+    if (state.nextHarvest && Date.now() >= state.nextHarvest && !harvestedRef.current) {
+      executeRef.current();
+    }
+
     const ms = state.intervalHours * 3600000;
     timerRef.current = setInterval(async () => {
-      await executeHarvest();
+      await executeRef.current();
     }, ms);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [state.enabled, state.intervalHours, isOwner]);
+  }, [state.enabled, state.intervalHours, isOwner, state.nextHarvest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = useCallback((patch: Partial<CompoundState>) => {
     setState((s) => {
@@ -136,29 +175,14 @@ export default function AutoCompoundPanel({
     });
   }, []);
 
-  const executeHarvest = useCallback(async () => {
-    if (state.harvesting) return;
-    setState((s) => ({ ...s, harvesting: true }));
-    try {
-      await onHarvest();
-      const now = Date.now();
-      save({
-        harvesting: false,
-        lastHarvest: now,
-        nextHarvest: now + state.intervalHours * 3600000,
-        harvestCount: state.harvestCount + 1,
-      });
-    } catch {
-      setState((s) => ({ ...s, harvesting: false }));
-    }
-  }, [state.harvesting, state.intervalHours, state.harvestCount, onHarvest, save]);
-
   function toggle() {
+    setErrorMsg(null);
     if (state.enabled) {
       if (timerRef.current) clearInterval(timerRef.current);
       save({ enabled: false, nextHarvest: null });
     } else {
       const now = Date.now();
+      harvestedRef.current = false;
       save({
         enabled: true,
         lastHarvest: state.lastHarvest || null,
@@ -168,7 +192,13 @@ export default function AutoCompoundPanel({
   }
 
   function changeInterval(h: number) {
+    setErrorMsg(null);
     save({ intervalHours: h });
+    // Reset nextHarvest so the new interval takes effect
+    if (state.enabled) {
+      const now = Date.now();
+      save({ nextHarvest: now + h * 3600000 });
+    }
   }
 
   return (
@@ -204,6 +234,13 @@ export default function AutoCompoundPanel({
         </div>
       ) : (
         <>
+          {errorMsg && (
+            <div className="mb-3 flex items-start gap-2 rounded-lg border border-error/20 bg-error/5 p-2.5">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-error" />
+              <p className="text-[11px] text-error/90">{errorMsg}</p>
+            </div>
+          )}
+
           <div className="mb-3 flex items-center gap-2">
             <button
               onClick={toggle}
@@ -225,6 +262,11 @@ export default function AutoCompoundPanel({
                 </span>
               )}
             </button>
+            {state.harvesting && (
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center">
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500/30 border-t-brand-500" />
+              </span>
+            )}
           </div>
 
           {state.enabled && (
@@ -277,6 +319,7 @@ export default function AutoCompoundPanel({
             <button
               onClick={async () => {
                 await executeHarvest();
+                await refreshYieldFromChain();
               }}
               disabled={state.harvesting}
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/10 py-2.5 text-xs font-medium text-brand-400 transition-all hover:bg-brand-500/20 disabled:opacity-50"
