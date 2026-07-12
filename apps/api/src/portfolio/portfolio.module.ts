@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PortfolioController } from './portfolio.controller';
 import { PortfolioService } from './portfolio.service';
+import { PortfolioController } from './portfolio.controller';
+import { BlockchainModule } from '../blockchain/blockchain.module';
 
 @Module({
+  imports: [BlockchainModule],
   controllers: [PortfolioController],
   providers: [PortfolioService],
-  exports: [PortfolioService],
 })
 export class PortfolioModule {}

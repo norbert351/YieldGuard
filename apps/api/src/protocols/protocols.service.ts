@@ -1,36 +1,58 @@
 import { Injectable } from '@nestjs/common';
+import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Injectable()
 export class ProtocolsService {
-  private protocols = [
-    { id: 'aave', name: 'Aave V3', color: '#7B5FED', tvl: '12.4B', supportedAssets: 5 },
-    { id: 'morpho', name: 'Morpho', color: '#4F7BF5', tvl: '8.1B', supportedAssets: 4 },
-    { id: 'compound', name: 'Compound', color: '#51CF66', tvl: '3.2B', supportedAssets: 3 },
-  ];
+  constructor(private readonly blockchain: BlockchainService) {}
 
-  private rates = [
-    { asset: 'USDC', aave: 6.2, morpho: 8.9, compound: 5.4 },
-    { asset: 'USDT', aave: 5.8, morpho: 8.2, compound: 5.1 },
-    { asset: 'DAI', aave: 5.5, morpho: 7.8, compound: 4.9 },
-    { asset: 'WETH', aave: 4.1, morpho: 5.2, compound: 3.8 },
-    { asset: 'WBTC', aave: 3.2, morpho: 4.5, compound: 2.9 },
-  ];
+  async getAll() {
+    const vaultAddress = process.env.VAULT_ADDRESS || '';
+    if (!vaultAddress) return [];
+    const provider = this.blockchain.getProvider();
+    if (!provider) return [];
 
-  getAll() {
-    return this.protocols;
+    try {
+      const { ethers } = await import('ethers');
+      const vault = new ethers.Contract(vaultAddress, ['function getStrategies() view returns (address[])'], provider);
+      const strategies = await vault.getStrategies() as string[];
+      const stratAbi = ['function name() view returns (string)', 'function protocol() view returns (string)', 'function totalAssets() view returns (uint256)', 'function apy() view returns (uint256)'];
+
+      const protocols = await Promise.all(
+        strategies.map(async (addr: string) => {
+          try {
+            const s = new ethers.Contract(addr, stratAbi, provider);
+            const [name, protocol] = await Promise.all([s.name(), s.protocol()]);
+            return { id: protocol.toLowerCase().replace(/\s+/g, ''), name: protocol, address: addr, supportedAssets: 1 };
+          } catch { return null; }
+        }),
+      );
+      return protocols.filter(Boolean);
+    } catch { return []; }
   }
 
-  getRates() {
-    return this.rates.map((r) => ({
-      ...r,
-      best: this.findBest(r),
-    }));
-  }
+  async getRates() {
+    const vaultAddress = process.env.VAULT_ADDRESS || '';
+    if (!vaultAddress) return [];
+    const provider = this.blockchain.getProvider();
+    if (!provider) return [];
 
-  private findBest(rates: { asset: string; aave: number; morpho: number; compound: number }) {
-    const max = Math.max(rates.aave, rates.morpho, rates.compound);
-    if (max === rates.morpho) return 'Morpho';
-    if (max === rates.aave) return 'Aave V3';
-    return 'Compound';
+    try {
+      const { ethers } = await import('ethers');
+      const vault = new ethers.Contract(vaultAddress, ['function getStrategies() view returns (address[])'], provider);
+      const strategies = await vault.getStrategies() as string[];
+      const stratAbi = ['function protocol() view returns (string)', 'function apy() view returns (uint256)'];
+
+      const rates = await Promise.all(
+        strategies.map(async (addr: string) => {
+          try {
+            const s = new ethers.Contract(addr, stratAbi, provider);
+            const [protocol, apy] = await Promise.all([s.protocol(), s.apy()]);
+            const apyPct = parseFloat(ethers.formatEther(apy)) * 100;
+            return { asset: protocol, protocol: protocol, apy: apyPct };
+          } catch { return null; }
+        }),
+      );
+      return rates.filter(Boolean);
+    } catch { return []; }
   }
 }

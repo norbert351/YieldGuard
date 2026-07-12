@@ -30,6 +30,7 @@ export class BlockchainService implements OnModuleInit {
   }
 
   isConnected(): boolean { return this.provider !== null; }
+  getProvider(): ethers.JsonRpcProvider | null { return this.provider; }
 
   async getVaultInfo(vaultAddress: string) {
     if (!this.provider) return null;
