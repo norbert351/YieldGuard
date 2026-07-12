@@ -131,8 +131,9 @@ export default function DashboardPage() {
   const refreshVaultData = useCallback(async () => {
     const vaultData = await getVaultData();
     setData(vaultData);
+    feeTracker.refresh();
     return vaultData;
-  }, [getVaultData]);
+  }, [getVaultData, feeTracker]);
 
   const switchToTestnet = useCallback(async () => {
     const eth = (window as any).ethereum;

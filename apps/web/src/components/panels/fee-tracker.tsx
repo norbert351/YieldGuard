@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
 import { useYieldGuard } from '@/hooks/useYieldGuard';
 
 interface FeeMetrics {
   totalYield: number;
-  feeRate: number; // percentage
+  feeRate: number;
   harvestCount: number;
 }
 
@@ -14,50 +14,34 @@ export function useFeeTracker() {
   const { getVaultEvents } = useYieldGuard();
   const [metrics, setMetrics] = useState<FeeMetrics>({
     totalYield: 0,
-    feeRate: 10, // 10% performance fee by default
+    feeRate: 10,
     harvestCount: 0,
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        const events = await getVaultEvents(90);
-        if (!mounted) return;
-
-        const harvestEvents = events.filter((e: any) => e.name === 'Harvested');
-        let totalY = 0;
-        let totalF = 0;
-
-        for (const e of harvestEvents) {
-          const y = Number(e.args?.totalYield) / 1e18 || 0;
-          const f = Number(e.args?.fees) / 1e18 || 0;
-          totalY += y;
-          totalF += f;
-        }
-
-        // Fee rate: if we can detect from events, use actual; else default
-        const actualRate =
-          totalY > 0 ? Math.round((totalF / totalY) * 100) : 10;
-
-        setMetrics({
-          totalYield: Math.round(totalY * 10000) / 10000,
-          feeRate: actualRate,
-          harvestCount: harvestEvents.length,
-        });
-      } catch {
-        // Keep defaults
+  const refresh = useCallback(async () => {
+    try {
+      const events = await getVaultEvents(90);
+      const harvestEvents = events.filter((e: any) => e.name === 'Harvested');
+      let totalY = 0;
+      let totalF = 0;
+      for (const e of harvestEvents) {
+        totalY += Number(e.args?.totalYield) / 1e18 || 0;
+        totalF += Number(e.args?.fees) / 1e18 || 0;
       }
-      if (mounted) setLoading(false);
-    }
-    load();
-    return () => {
-      mounted = false;
-    };
+      const actualRate = totalY > 0 ? Math.round((totalF / totalY) * 100) : 10;
+      setMetrics({
+        totalYield: Math.round(totalY * 10000) / 10000,
+        feeRate: actualRate,
+        harvestCount: harvestEvents.length,
+      });
+    } catch { /* keep defaults */ }
+    setLoading(false);
   }, [getVaultEvents]);
 
-  return { metrics, loading };
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { metrics, loading, refresh };
 }
 
 export default function FeeTrackerPanel({
