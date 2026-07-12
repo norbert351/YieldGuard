@@ -45,7 +45,7 @@ export default function AutoCompoundPanel({
   onHarvest: () => Promise<void>;
   hasAllocatedCapital: boolean;
 }) {
-  const { getVaultEvents } = useYieldGuard();
+  const { getVaultEvents, getAccumulatedYield } = useYieldGuard();
   const [state, setState] = useState<CompoundState>({
     enabled: false,
     intervalHours: 6,
@@ -79,19 +79,29 @@ export default function AutoCompoundPanel({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function refreshYieldFromChain() {
+    // Primary: accumulatedFees from vault (deterministic)
+    const yieldFromFees = await getAccumulatedYield();
+    let totalYield = yieldFromFees;
+    let harvestCount = 0;
+
+    // Secondary: events for count
     try {
       const events = await getVaultEvents(90);
       const harvests = events.filter((e: any) => e.name === 'Harvested');
-      const totalYield = harvests.reduce(
-        (s: number, e: any) => s + (Number(e.args?.totalYield) / 1e18 || 0),
-        0,
-      );
-      setState((s) => ({
-        ...s,
-        harvestCount: harvests.length,
-        yieldAccumulated: Math.round(totalYield * 1e8) / 1e8,
-      }));
+      harvestCount = harvests.length;
+      if (totalYield === 0 && harvestCount > 0) {
+        totalYield = harvests.reduce(
+          (s: number, e: any) => s + (Number(e.args?.totalYield) / 1e18 || 0),
+          0,
+        );
+      }
     } catch {}
+
+    setState((s) => ({
+      ...s,
+      harvestCount,
+      yieldAccumulated: Math.round(totalYield * 1e8) / 1e8,
+    }));
   }
 
   // Countdown tick

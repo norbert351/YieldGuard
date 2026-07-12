@@ -11,7 +11,7 @@ interface FeeMetrics {
 }
 
 export function useFeeTracker() {
-  const { getVaultEvents } = useYieldGuard();
+  const { getVaultEvents, getAccumulatedYield } = useYieldGuard();
   const [metrics, setMetrics] = useState<FeeMetrics>({
     totalYield: 0,
     feeRate: 10,
@@ -20,24 +20,33 @@ export function useFeeTracker() {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
+    // Primary source: accumulatedFees from vault contract (deterministic, always works)
+    const yieldFromFees = await getAccumulatedYield();
+    let totalYield = yieldFromFees;
+    let harvestCount = 0;
+
+    // Secondary source: events (for harvest count and fee rate)
     try {
       const events = await getVaultEvents(90);
       const harvestEvents = events.filter((e: any) => e.name === 'Harvested');
-      let totalY = 0;
-      let totalF = 0;
-      for (const e of harvestEvents) {
-        totalY += Number(e.args?.totalYield) / 1e18 || 0;
-        totalF += Number(e.args?.fees) / 1e18 || 0;
+      harvestCount = harvestEvents.length;
+
+      // If accumulatedFees returned 0 but events exist, use event values
+      if (totalYield === 0 && harvestCount > 0) {
+        let totalY = 0;
+        let totalF = 0;
+        for (const e of harvestEvents) {
+          totalY += Number(e.args?.totalYield) / 1e18 || 0;
+          totalF += Number(e.args?.fees) / 1e18 || 0;
+        }
+        totalYield = Math.round(totalY * 1e8) / 1e8;
       }
-      const actualRate = totalY > 0 ? Math.round((totalF / totalY) * 100) : 10;
-      setMetrics({
-        totalYield: Math.round(totalY * 1e8) / 1e8,
-        feeRate: actualRate,
-        harvestCount: harvestEvents.length,
-      });
-    } catch { /* keep defaults */ }
+    } catch { /* events are secondary, ignore failures */ }
+
+    const feeRate = 10; // 10% performance fee hardcoded
+    setMetrics({ totalYield, feeRate, harvestCount });
     setLoading(false);
-  }, [getVaultEvents]);
+  }, [getAccumulatedYield, getVaultEvents]);
 
   useEffect(() => { refresh(); }, [refresh]);
 

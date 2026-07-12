@@ -6,7 +6,7 @@ import { useWeb3ModalAccount, useWeb3ModalProvider } from '@web3modal/ethers/rea
 import { deployedContracts } from '@/lib/contracts';
 
 const FACTORY_ABI = ['function getVaults() view returns (address[])', 'function vaultCount() view returns (uint256)', 'function vaults(uint256) view returns (address)'];
-const VAULT_ABI = ['function vaultName() view returns (string)', 'function asset() view returns (address)', 'function totalAssets_() view returns (uint256)', 'function totalShares() view returns (uint256)', 'function sharePrice() view returns (uint256)', 'function healthFactor() view returns (uint256)', 'function balanceOf(address) view returns (uint256)', 'function getStrategies() view returns (address[])', 'function deposit(uint256) returns (uint256)', 'function deallocateFromStrategy(address,uint256)', 'function emergencyDeallocate(address)'];
+const VAULT_ABI = ['function vaultName() view returns (string)', 'function asset() view returns (address)', 'function totalAssets_() view returns (uint256)', 'function totalShares() view returns (uint256)', 'function sharePrice() view returns (uint256)', 'function healthFactor() view returns (uint256)', 'function balanceOf(address) view returns (uint256)', 'function getStrategies() view returns (address[])', 'function deposit(uint256) returns (uint256)', 'function deallocateFromStrategy(address,uint256)', 'function emergencyDeallocate(address)', 'function accumulatedFees() view returns (uint256)'];
 const STRATEGY_ABI = ['function name() view returns (string)', 'function protocol() view returns (string)', 'function totalAssets() view returns (uint256)', 'function apy() view returns (uint256)', 'function healthFactor() view returns (uint256)', 'function isHealthy() view returns (bool)'];
 const ERC20_ABI = ['function symbol() view returns (string)', 'function decimals() view returns (uint8)', 'function approve(address,uint256) returns (bool)', 'function balanceOf(address) view returns (uint256)', 'function allowance(address,address) view returns (uint256)'];
 const RPC_URLS: Record<number, string> = { 1952: 'https://testrpc.xlayer.tech', 196: 'https://rpc.xlayer.tech' };
@@ -168,6 +168,20 @@ export function useYieldGuard() {
     } catch { return []; }
   }, [cfg.vault, rpcForTx]);
 
+  const getAccumulatedYield = useCallback(async () => {
+    if (!cfg.vault) return 0;
+    const provider = rpcForTx();
+    try {
+      const vault = new Contract(cfg.vault, VAULT_ABI, provider);
+      const fees = await vault.accumulatedFees();
+      if (fees === BigInt(0)) return 0;
+      // totalYield = fees * FEE_DENOMINATOR / performanceFee = fees * 10000 / 1000 = fees * 10
+      const totalYield = fees * BigInt(10);
+      const yieldNum = parseFloat(formatUnits(totalYield, 18));
+      return Math.round(yieldNum * 1e8) / 1e8;
+    } catch { return 0; }
+  }, [cfg.vault, rpcForTx]);
+
   const rebalance = useCallback(async (fromStrategy: string, toStrategy: string, amount: string) => {
     if (!address || !cfg.vault) throw new Error('Not connected');
     const { Interface } = await import('ethers');
@@ -186,5 +200,5 @@ export function useYieldGuard() {
     return sendAndWait(cfg.vault, new Interface(['function emergencyDeallocate(address)']).encodeFunctionData('emergencyDeallocate', [strategyAddr]), address);
   }, [cfg.vault, address, sendAndWait]);
 
-  return { getVaultData, deposit, approve, getUserBalance, getUserShares, withdraw, isOwner, allocateToStrategy, deallocateFromStrategy, emergencyDeallocate, rebalance, harvestAll, getVaultEvents, cfg, isTestnet };
+  return { getVaultData, deposit, approve, getUserBalance, getUserShares, withdraw, isOwner, allocateToStrategy, deallocateFromStrategy, emergencyDeallocate, rebalance, harvestAll, getVaultEvents, getAccumulatedYield, cfg, isTestnet };
 }
