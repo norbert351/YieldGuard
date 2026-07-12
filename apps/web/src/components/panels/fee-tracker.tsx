@@ -31,7 +31,7 @@ export function useFeeTracker() {
       }
       const actualRate = totalY > 0 ? Math.round((totalF / totalY) * 100) : 10;
       setMetrics({
-        totalYield: Math.round(totalY * 10000) / 10000,
+        totalYield: Math.round(totalY * 1e8) / 1e8,
         feeRate: actualRate,
         harvestCount: harvestEvents.length,
       });
@@ -62,14 +62,14 @@ export default function FeeTrackerPanel({
         <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
           <div className="text-[10px] font-medium uppercase tracking-wider text-surface-500">Yield generated</div>
           <div className="mt-1 font-display text-lg font-bold text-success">
-            {metrics.totalYield > 0 ? `${metrics.totalYield.toLocaleString()} USDC` : '—'}
+            {metrics.totalYield > 0 ? `${metrics.totalYield.toFixed(8)} USDC` : '—'}
           </div>
         </div>
         <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
           <div className="text-[10px] font-medium uppercase tracking-wider text-surface-500">Your share</div>
           <div className="mt-1 font-display text-lg font-bold text-white">
             {metrics.totalYield > 0
-              ? `${(metrics.totalYield * (1 - metrics.feeRate / 100)).toLocaleString()} USDC`
+              ? `${(metrics.totalYield * (1 - metrics.feeRate / 100)).toFixed(8)} USDC`
               : '—'}
           </div>
         </div>

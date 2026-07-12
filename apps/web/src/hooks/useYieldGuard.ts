@@ -128,8 +128,7 @@ export function useYieldGuard() {
     const rpc = rpcForTx();
     try {
       const currentBlock = await rpc.getBlockNumber();
-      const fromBlock = currentBlock - (days * 6500);
-      if (fromBlock <= 0) return [];
+      const fromBlock = Math.max(0, currentBlock - (days * 6500));
 
       const { Interface } = await import('ethers');
       const eventInterface = new Interface([

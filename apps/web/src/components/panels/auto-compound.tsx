@@ -89,7 +89,7 @@ export default function AutoCompoundPanel({
       setState((s) => ({
         ...s,
         harvestCount: harvests.length,
-        yieldAccumulated: Math.round(totalYield * 10000) / 10000,
+        yieldAccumulated: Math.round(totalYield * 1e8) / 1e8,
       }));
     } catch {}
   }
@@ -313,7 +313,7 @@ export default function AutoCompoundPanel({
                     Cumulative yield
                   </span>
                   <span className="font-mono font-semibold text-success">
-                    {state.yieldAccumulated.toFixed(4)} USDC
+                    {state.yieldAccumulated.toFixed(8)} USDC
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.01] px-3 py-2 text-xs">
