@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm ci --legacy-peer-deps --no-audit --no-fund",
+  "buildCommand": "npm run build -w apps/web",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
+}
