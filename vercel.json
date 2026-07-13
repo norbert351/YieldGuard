@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm ci --legacy-peer-deps --no-audit --no-fund",
-  "buildCommand": "npm run build -w apps/web",
+  "installCommand": "NODE_OPTIONS=--max-old-space-size=8192 npm ci --legacy-peer-deps --no-audit --no-fund",
+  "buildCommand": "NODE_OPTIONS=--max-old-space-size=8192 npm run build -w apps/web",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs"
 }
