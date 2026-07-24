@@ -3,7 +3,7 @@ services:
     name: yieldguard-api
     runtime: node
     plan: starter
-    buildCommand: npm install && npm run build:api
+    buildCommand: pnpm install --prod=false && pnpm run build:api
     startCommand: cd apps/api && node dist/main.js
     envVars:
       - key: NODE_VERSION
