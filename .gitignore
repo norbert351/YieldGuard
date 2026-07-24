@@ -1,9 +1,0 @@
-node_modules/
-.next/
-dist/
-*.log
-.env
-.env.local
-.env.bot
-*.bak
-restart.sh

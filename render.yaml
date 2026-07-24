@@ -3,7 +3,7 @@ services:
     name: yieldguard-api
     runtime: node
     plan: starter
-    buildCommand: npm install --legacy-peer-deps
+    buildCommand: npm ci --ignore-scripts
     startCommand: node dist/main.js
     envVars:
       - key: NODE_VERSION
