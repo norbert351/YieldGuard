@@ -27,7 +27,7 @@ let BlockchainService = class BlockchainService {
         ];
     }
     async onModuleInit() {
-        const rpcUrl = process.env.RPC_URL || process.env.X_LAYER_RPC || 'http://127.0.0.1:8545';
+        const rpcUrl = process.env.X_LAYER_RPC || process.env.RPC_URL || 'http://127.0.0.1:8545';
         const privateKey = process.env.PRIVATE_KEY || '';
         try {
             this.provider = new ethers_1.ethers.JsonRpcProvider(rpcUrl);
