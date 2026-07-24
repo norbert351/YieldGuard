@@ -8,6 +8,12 @@ export declare class ProtocolsController {
         address: string;
         supportedAssets: number;
     } | null)[]>;
+    getAllPost(body: any): Promise<({
+        id: any;
+        name: any;
+        address: string;
+        supportedAssets: number;
+    } | null)[]>;
     getRates(): Promise<({
         asset: any;
         protocol: any;

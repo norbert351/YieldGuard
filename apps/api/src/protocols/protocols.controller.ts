@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { ProtocolsService } from './protocols.service';
 
 @Controller('protocols')
@@ -7,6 +7,11 @@ export class ProtocolsController {
 
   @Get()
   getAll() {
+    return this.protocolsService.getAll();
+  }
+
+  @Post()
+  getAllPost(@Body() body: any) {
     return this.protocolsService.getAll();
   }
 
