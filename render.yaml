@@ -3,7 +3,7 @@ services:
     name: yieldguard-api
     runtime: node
     plan: starter
-    buildCommand: npm ci && npm run build:api
+    buildCommand: echo "pre-built — dist/ committed"
     startCommand: cd apps/api && node dist/main.js
     envVars:
       - key: NODE_VERSION
