@@ -54,8 +54,7 @@ let AnalyticsService = class AnalyticsService {
                 annualizedReturn: Math.round(annualizedReturn * 10000) / 10000,
                 harvestCount,
                 vaultName: info.name,
-                sharePrice: parseFloat(info.sharePrice),
-                healthFactor: parseFloat(info.healthFactor),
+                totalShares: info.totalShares,
             };
         }
         catch {
