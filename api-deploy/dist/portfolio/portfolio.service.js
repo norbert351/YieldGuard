@@ -28,7 +28,6 @@ let PortfolioService = class PortfolioService {
             return {
                 totalValue: parseFloat(info.totalAssets),
                 sharePrice: parseFloat(info.sharePrice),
-                healthFactor: parseFloat(info.healthFactor),
                 vaultName: info.name,
                 asset: info.asset,
                 status: 'healthy',

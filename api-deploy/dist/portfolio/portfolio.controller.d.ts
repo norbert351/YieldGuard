@@ -7,13 +7,11 @@ export declare class PortfolioController {
         message: string;
         totalValue?: undefined;
         sharePrice?: undefined;
-        healthFactor?: undefined;
         vaultName?: undefined;
         asset?: undefined;
     } | {
         totalValue: number;
         sharePrice: number;
-        healthFactor: number;
         vaultName: any;
         asset: any;
         status: string;
@@ -24,13 +22,11 @@ export declare class PortfolioController {
         message: string;
         totalValue?: undefined;
         sharePrice?: undefined;
-        healthFactor?: undefined;
         vaultName?: undefined;
         asset?: undefined;
     } | {
         totalValue: number;
         sharePrice: number;
-        healthFactor: number;
         vaultName: any;
         asset: any;
         status: string;
