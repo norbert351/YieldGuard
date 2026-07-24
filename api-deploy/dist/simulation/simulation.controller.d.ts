@@ -2,7 +2,11 @@ import { SimulationService } from './simulation.service';
 export declare class SimulationController {
     private readonly simulationService;
     constructor(simulationService: SimulationService);
-    getAll(): any[];
+    getAll(): {
+        simulations: any[];
+        status: string;
+        count: number;
+    };
     create(config: any): {
         id: string;
         config: {

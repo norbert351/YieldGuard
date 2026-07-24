@@ -20,7 +20,7 @@ let SimulationController = class SimulationController {
         this.simulationService = simulationService;
     }
     getAll() {
-        return this.simulationService.findAll();
+        return { simulations: this.simulationService.findAll(), status: 'ready', count: 0 };
     }
     create(config) {
         return this.simulationService.run(config);

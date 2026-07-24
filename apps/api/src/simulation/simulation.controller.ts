@@ -7,7 +7,7 @@ export class SimulationController {
 
   @Get()
   getAll() {
-    return this.simulationService.findAll();
+    return { simulations: this.simulationService.findAll(), status: 'ready', count: 0 };
   }
 
   @Post()
