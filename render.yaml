@@ -12,6 +12,10 @@ services:
         value: '4000'
       - key: X_LAYER_RPC
         sync: false
+      - key: RPC_URL
+        sync: false
+      - key: VAULT_ADDRESS
+        sync: false
       - key: YIELDGUARD_WALLET_PK
         sync: false
       - key: SUPABASE_URL
