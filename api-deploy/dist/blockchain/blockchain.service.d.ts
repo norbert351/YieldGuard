@@ -13,7 +13,6 @@ export declare class BlockchainService implements OnModuleInit {
         asset: any;
         totalAssets: string;
         totalShares: string;
-        healthFactor: string;
         sharePrice: string;
     } | null>;
     depositToVault(vaultAddress: string, amount: string): Promise<{
