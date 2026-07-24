@@ -6,7 +6,7 @@ export class PortfolioService {
   constructor(private readonly blockchain: BlockchainService) {}
 
   async getOverview() {
-    const vaultAddress = process.env.VAULT_ADDRESS || '';
+    const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
     if (!vaultAddress) {
       return { status: 'unconfigured', message: 'Set VAULT_ADDRESS env var to read live data' };
     }
@@ -27,7 +27,7 @@ export class PortfolioService {
   }
 
   async getPositions() {
-    const vaultAddress = process.env.VAULT_ADDRESS || '';
+    const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
     if (!vaultAddress) return [];
     try {
       const info = await this.blockchain.getVaultInfo(vaultAddress);

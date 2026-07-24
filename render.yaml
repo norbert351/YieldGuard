@@ -10,11 +10,9 @@ services:
         value: '22'
       - key: PORT
         value: '4000'
-      - key: X_LAYER_RPC
+      - key: MAINNET_RPC_URL
         sync: false
-      - key: RPC_URL
-        sync: false
-      - key: VAULT_ADDRESS
+      - key: MAINNET_VAULT_ADDRESS
         sync: false
       - key: YIELDGUARD_WALLET_PK
         sync: false

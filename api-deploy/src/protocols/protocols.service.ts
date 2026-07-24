@@ -6,7 +6,7 @@ export class ProtocolsService {
   constructor(private readonly blockchain: BlockchainService) {}
 
   async getAll() {
-    const vaultAddress = process.env.VAULT_ADDRESS || '';
+    const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
     if (!vaultAddress) return [];
     const provider = this.blockchain.getProvider();
     if (!provider) return [];
@@ -31,7 +31,7 @@ export class ProtocolsService {
   }
 
   async getRates() {
-    const vaultAddress = process.env.VAULT_ADDRESS || '';
+    const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
     if (!vaultAddress) return [];
     const provider = this.blockchain.getProvider();
     if (!provider) return [];
