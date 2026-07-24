@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: yieldguard-api
+    runtime: node
+    plan: starter
+    buildCommand: npm install && npm run build:api
+    startCommand: cd apps/api && node dist/main.js
+    envVars:
+      - key: NODE_VERSION
+        value: '20'
+      - key: PORT
+        value: '4000'
+      - key: X_LAYER_RPC
+        sync: false
+      - key: YIELDGUARD_WALLET_PK
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+    healthCheckPath: /api/simulation
+    autoDeploy: true
