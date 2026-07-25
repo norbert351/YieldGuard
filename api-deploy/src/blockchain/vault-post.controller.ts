@@ -28,4 +28,24 @@ export class VaultPostController {
   async postBalance(@Param('address') address: string, @Param('user') user: string, @Body() body: any) {
     return this.blockchainService.getUserBalance(address, user, body?.network);
   }
+
+  @Post(':address/add-strategy')
+  async addStrategy(@Param('address') address: string, @Body() body: { strategy: string; network?: string }) {
+    return this.blockchainService.addStrategy(address, body.strategy, body.network);
+  }
+
+  @Post(':address/allocate')
+  async allocate(@Param('address') address: string, @Body() body: { strategy: string; amount: string; network?: string }) {
+    return this.blockchainService.allocateToStrategy(address, body.strategy, body.amount, body.network);
+  }
+
+  @Post(':address/harvest')
+  async harvest(@Param('address') address: string, @Body() body: any) {
+    return this.blockchainService.harvestAll(address, body?.network);
+  }
+
+  @Post(':address/strategies')
+  async strategies(@Param('address') address: string, @Body() body: any) {
+    return this.blockchainService.getStrategies(address, body?.network);
+  }
 }

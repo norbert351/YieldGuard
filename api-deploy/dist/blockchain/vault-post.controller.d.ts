@@ -31,4 +31,33 @@ export declare class VaultPostController {
         balance: string;
         network: string;
     }>;
+    addStrategy(address: string, body: {
+        strategy: string;
+        network?: string;
+    }): Promise<{
+        txHash: any;
+        blockNumber: any;
+        strategy: string;
+        network: string;
+    }>;
+    allocate(address: string, body: {
+        strategy: string;
+        amount: string;
+        network?: string;
+    }): Promise<{
+        txHash: any;
+        blockNumber: any;
+        strategy: string;
+        amount: string;
+        network: string;
+    }>;
+    harvest(address: string, body: any): Promise<{
+        txHash: any;
+        blockNumber: any;
+        network: string;
+    }>;
+    strategies(address: string, body: any): Promise<{
+        address: string;
+        allocated: string;
+    }[]>;
 }

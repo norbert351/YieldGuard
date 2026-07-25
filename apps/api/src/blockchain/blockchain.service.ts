@@ -15,6 +15,13 @@ export class BlockchainService implements OnModuleInit {
     'function strategies(uint256) view returns (address)',
     'function strategyAllocation(address) view returns (uint256)',
     'function isStrategy(address) view returns (bool)',
+    'function addStrategy(address _strategy) external',
+    'function allocateToStrategy(address _strategy, uint256 _amount) external',
+    'function harvestAll() external returns (uint256)',
+    'function getStrategies() view returns (address[])',
+    'function strategyCount() view returns (uint256)',
+    'function sharePrice() view returns (uint256)',
+    'function healthFactor() view returns (uint256)',
   ];
 
   async onModuleInit() {
@@ -90,5 +97,40 @@ export class BlockchainService implements OnModuleInit {
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, provider);
     const bal = ethers.formatEther(await c.balances(userAddress));
     return { address: userAddress, balance: bal, network: network || 'mainnet' };
+  }
+
+  async addStrategy(vaultAddress: string, strategyAddress: string, network?: string) {
+    const signer = await this.getSigner(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
+    const tx = await c.addStrategy(strategyAddress);
+    const r = await tx.wait();
+    return { txHash: r.hash, blockNumber: r.blockNumber, strategy: strategyAddress, network: network || 'mainnet' };
+  }
+
+  async allocateToStrategy(vaultAddress: string, strategyAddress: string, amount: string, network?: string) {
+    const signer = await this.getSigner(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
+    const tx = await c.allocateToStrategy(strategyAddress, ethers.parseEther(amount));
+    const r = await tx.wait();
+    return { txHash: r.hash, blockNumber: r.blockNumber, strategy: strategyAddress, amount, network: network || 'mainnet' };
+  }
+
+  async harvestAll(vaultAddress: string, network?: string) {
+    const signer = await this.getSigner(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
+    const tx = await c.harvestAll();
+    const r = await tx.wait();
+    return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
+  }
+
+  async getStrategies(vaultAddress: string, network?: string) {
+    const provider = await this.getProvider(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, provider);
+    const addrs: string[] = await c.getStrategies();
+    const info = await Promise.all(addrs.map(async (addr: string) => {
+      const alloc = ethers.formatEther(await c.strategyAllocation(addr));
+      return { address: addr, allocated: alloc };
+    }));
+    return info;
   }
 }

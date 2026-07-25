@@ -30,4 +30,26 @@ export declare class BlockchainService implements OnModuleInit {
         balance: string;
         network: string;
     }>;
+    addStrategy(vaultAddress: string, strategyAddress: string, network?: string): Promise<{
+        txHash: any;
+        blockNumber: any;
+        strategy: string;
+        network: string;
+    }>;
+    allocateToStrategy(vaultAddress: string, strategyAddress: string, amount: string, network?: string): Promise<{
+        txHash: any;
+        blockNumber: any;
+        strategy: string;
+        amount: string;
+        network: string;
+    }>;
+    harvestAll(vaultAddress: string, network?: string): Promise<{
+        txHash: any;
+        blockNumber: any;
+        network: string;
+    }>;
+    getStrategies(vaultAddress: string, network?: string): Promise<{
+        address: string;
+        allocated: string;
+    }[]>;
 }

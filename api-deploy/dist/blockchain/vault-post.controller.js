@@ -35,6 +35,18 @@ let VaultPostController = class VaultPostController {
     async postBalance(address, user, body) {
         return this.blockchainService.getUserBalance(address, user, body?.network);
     }
+    async addStrategy(address, body) {
+        return this.blockchainService.addStrategy(address, body.strategy, body.network);
+    }
+    async allocate(address, body) {
+        return this.blockchainService.allocateToStrategy(address, body.strategy, body.amount, body.network);
+    }
+    async harvest(address, body) {
+        return this.blockchainService.harvestAll(address, body?.network);
+    }
+    async strategies(address, body) {
+        return this.blockchainService.getStrategies(address, body?.network);
+    }
 };
 exports.VaultPostController = VaultPostController;
 __decorate([
@@ -70,6 +82,38 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], VaultPostController.prototype, "postBalance", null);
+__decorate([
+    (0, common_1.Post)(':address/add-strategy'),
+    __param(0, (0, common_1.Param)('address')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], VaultPostController.prototype, "addStrategy", null);
+__decorate([
+    (0, common_1.Post)(':address/allocate'),
+    __param(0, (0, common_1.Param)('address')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], VaultPostController.prototype, "allocate", null);
+__decorate([
+    (0, common_1.Post)(':address/harvest'),
+    __param(0, (0, common_1.Param)('address')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], VaultPostController.prototype, "harvest", null);
+__decorate([
+    (0, common_1.Post)(':address/strategies'),
+    __param(0, (0, common_1.Param)('address')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], VaultPostController.prototype, "strategies", null);
 exports.VaultPostController = VaultPostController = __decorate([
     (0, common_1.Controller)('blockchain/vaults'),
     __metadata("design:paramtypes", [blockchain_service_1.BlockchainService])
