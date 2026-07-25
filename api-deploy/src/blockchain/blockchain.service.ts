@@ -87,7 +87,7 @@ export class BlockchainService implements OnModuleInit {
     const tx = await c.deposit(ethers.parseEther(amount));
     const r = await tx.wait();
     
-    // 3. Auto-allocate idle USDC to strategies
+    // 3. Auto-allocate idle USDC to strategies (only if balance > 0)
     let allocation = 'none';
     try {
       const strats: string[] = await c.getStrategies();
@@ -98,12 +98,14 @@ export class BlockchainService implements OnModuleInit {
         const idleBalance = await token.balanceOf(vaultAddress);
         if (idleBalance > 0n) {
           const perStrategy = idleBalance / BigInt(strats.length);
-          for (const strat of strats) {
-            if (await c.isStrategy(strat)) {
-              try { await c.allocateToStrategy(strat, perStrategy); } catch {}
+          if (perStrategy > 0n) {
+            for (const strat of strats) {
+              if (await c.isStrategy(strat)) {
+                try { await c.allocateToStrategy(strat, perStrategy); } catch {}
+              }
             }
+            allocation = `split across ${strats.length} strategies`;
           }
-          allocation = `split across ${strats.length} strategies`;
         }
       }
     } catch {}

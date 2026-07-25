@@ -103,15 +103,17 @@ let BlockchainService = class BlockchainService {
                 const idleBalance = await token.balanceOf(vaultAddress);
                 if (idleBalance > 0n) {
                     const perStrategy = idleBalance / BigInt(strats.length);
-                    for (const strat of strats) {
-                        if (await c.isStrategy(strat)) {
-                            try {
-                                await c.allocateToStrategy(strat, perStrategy);
+                    if (perStrategy > 0n) {
+                        for (const strat of strats) {
+                            if (await c.isStrategy(strat)) {
+                                try {
+                                    await c.allocateToStrategy(strat, perStrategy);
+                                }
+                                catch { }
                             }
-                            catch { }
                         }
+                        allocation = `split across ${strats.length} strategies`;
                     }
-                    allocation = `split across ${strats.length} strategies`;
                 }
             }
         }
