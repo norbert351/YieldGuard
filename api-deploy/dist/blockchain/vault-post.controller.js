@@ -19,26 +19,31 @@ let VaultPostController = class VaultPostController {
     constructor(blockchainService) {
         this.blockchainService = blockchainService;
     }
-    postVault(address) {
-        return this.blockchainService.getVaultInfo(address);
+    async postVault(address, body) {
+        const { network } = body || {};
+        const { getConfig } = this.blockchainService;
+        const config = getConfig?.call(this.blockchainService, network);
+        const vaultAddr = address || config?.vaultAddress;
+        return this.blockchainService.getVaultInfo(vaultAddr, network);
     }
-    deposit(address, body) {
-        return this.blockchainService.depositToVault(address, body.amount);
+    async deposit(address, body) {
+        return this.blockchainService.depositToVault(address, body.amount, body.network);
     }
-    withdraw(address, body) {
-        return this.blockchainService.withdrawFromVault(address, body.shares);
+    async withdraw(address, body) {
+        return this.blockchainService.withdrawFromVault(address, body.shares, body.network);
     }
-    postBalance(address, user) {
-        return this.blockchainService.getUserBalance(address, user);
+    async postBalance(address, user, body) {
+        return this.blockchainService.getUserBalance(address, user, body?.network);
     }
 };
 exports.VaultPostController = VaultPostController;
 __decorate([
     (0, common_1.Post)(':address'),
     __param(0, (0, common_1.Param)('address')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
 ], VaultPostController.prototype, "postVault", null);
 __decorate([
     (0, common_1.Post)(':address/deposit'),
@@ -46,7 +51,7 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], VaultPostController.prototype, "deposit", null);
 __decorate([
     (0, common_1.Post)(':address/withdraw'),
@@ -54,15 +59,16 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], VaultPostController.prototype, "withdraw", null);
 __decorate([
     (0, common_1.Post)(':address/balance/:user'),
     __param(0, (0, common_1.Param)('address')),
     __param(1, (0, common_1.Param)('user')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
 ], VaultPostController.prototype, "postBalance", null);
 exports.VaultPostController = VaultPostController = __decorate([
     (0, common_1.Controller)('blockchain/vaults'),

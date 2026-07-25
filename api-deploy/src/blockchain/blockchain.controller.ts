@@ -6,42 +6,18 @@ export class BlockchainController {
   constructor(private readonly blockchainService: BlockchainService) {}
 
   @Get('status')
-  getStatus() {
-    return { connected: this.blockchainService.isConnected() };
-  }
-
-  @Post('status')
-  postStatus() {
-    return { connected: this.blockchainService.isConnected(), method: 'POST' };
+  async getStatus() {
+    const connected = await this.blockchainService.isConnected();
+    return { connected };
   }
 
   @Get('vaults/:address')
-  getVault(@Param('address') address: string) {
-    return this.blockchainService.getVaultInfo(address);
-  }
-
-  @Post('vaults/:address')
-  postVault(@Param('address') address: string) {
-    return this.blockchainService.getVaultInfo(address);
-  }
-
-  @Post('vaults/:address/deposit')
-  deposit(@Param('address') address: string, @Body() body: { amount: string }) {
-    return this.blockchainService.depositToVault(address, body.amount);
-  }
-
-  @Post('vaults/:address/withdraw')
-  withdraw(@Param('address') address: string, @Body() body: { shares: string }) {
-    return this.blockchainService.withdrawFromVault(address, body.shares);
+  async getVault(@Param('address') address: string, @Body() body?: any) {
+    return this.blockchainService.getVaultInfo(address, body?.network);
   }
 
   @Get('vaults/:address/balance/:user')
-  getBalance(@Param('address') address: string, @Param('user') user: string) {
-    return this.blockchainService.getUserBalance(address, user);
-  }
-
-  @Post('vaults/:address/balance/:user')
-  postBalance(@Param('address') address: string, @Param('user') user: string) {
-    return this.blockchainService.getUserBalance(address, user);
+  async getBalance(@Param('address') address: string, @Param('user') user: string, @Body() body?: any) {
+    return this.blockchainService.getUserBalance(address, user, body?.network);
   }
 }

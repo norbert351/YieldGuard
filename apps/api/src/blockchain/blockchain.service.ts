@@ -3,8 +3,6 @@ import { ethers } from 'ethers';
 
 @Injectable()
 export class BlockchainService implements OnModuleInit {
-  private provider: ethers.JsonRpcProvider | null = null;
-  private signer: ethers.Wallet | null = null;
 
   private vaultAbi = [
     'function deposit(uint256 _amount) external returns (uint256)',
@@ -20,21 +18,44 @@ export class BlockchainService implements OnModuleInit {
   ];
 
   async onModuleInit() {
-    const rpcUrl = process.env.TESTNET_RPC_URL || process.env.MAINNET_RPC_URL || process.env.X_LAYER_RPC || process.env.RPC_URL || 'http://127.0.0.1:8545';
-    const privateKey = process.env.YIELDGUARD_WALLET_PK || process.env.FOUNDRY_WALLET_PK || process.env.PRIVATE_KEY || '';
-    try {
-      this.provider = new ethers.JsonRpcProvider(rpcUrl);
-      if (privateKey) this.signer = new ethers.Wallet(privateKey, this.provider);
-      console.log(`Blockchain provider: ${rpcUrl}`);
-    } catch { console.warn('Blockchain unavailable (simulation mode)'); }
+    console.log('Blockchain service initialized (lazy connect)');
   }
 
-  isConnected(): boolean { return this.provider !== null; }
-  getProvider(): ethers.JsonRpcProvider | null { return this.provider; }
+  private getConfig(network?: string) {
+    const isTestnet = network === 'testnet';
+    const rpcUrl = isTestnet
+      ? (process.env.TESTNET_RPC_URL || 'http://127.0.0.1:8545')
+      : (process.env.MAINNET_RPC_URL || process.env.X_LAYER_RPC || process.env.RPC_URL || 'http://127.0.0.1:8545');
+    const vaultAddress = isTestnet
+      ? (process.env.TESTNET_VAULT_ADDRESS || '')
+      : (process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '');
+    const privateKey = process.env.YIELDGUARD_WALLET_PK || process.env.FOUNDRY_WALLET_PK || process.env.PRIVATE_KEY || '';
+    return { rpcUrl, vaultAddress, privateKey, isTestnet };
+  }
 
-  async getVaultInfo(vaultAddress: string) {
-    if (!this.provider) return null;
-    const c = new ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
+  private async getProvider(network?: string) {
+    const { rpcUrl } = this.getConfig(network);
+    return new ethers.JsonRpcProvider(rpcUrl);
+  }
+
+  private async getSigner(network?: string) {
+    const { rpcUrl, privateKey } = this.getConfig(network);
+    if (!privateKey) throw new Error('Wallet PK not set — set YIELDGUARD_WALLET_PK env var');
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    return new ethers.Wallet(privateKey, provider);
+  }
+
+  async isConnected(): Promise<boolean> {
+    try {
+      const provider = await this.getProvider();
+      await provider.getBlockNumber();
+      return true;
+    } catch { return false; }
+  }
+
+  async getVaultInfo(vaultAddress: string, network?: string) {
+    const provider = await this.getProvider(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, provider);
     try {
       const [name, asset, totalAssets, totalShares] = await Promise.all([
         c.vaultName(), c.asset(), c.totalAssets_(), c.totalShares(),
@@ -48,26 +69,26 @@ export class BlockchainService implements OnModuleInit {
     } catch { return null; }
   }
 
-  async depositToVault(vaultAddress: string, amount: string) {
-    if (!this.signer) throw new Error('Signer not initialized');
-    const c = new ethers.Contract(vaultAddress, this.vaultAbi, this.signer);
+  async depositToVault(vaultAddress: string, amount: string, network?: string) {
+    const signer = await this.getSigner(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
     const tx = await c.deposit(ethers.parseEther(amount));
     const r = await tx.wait();
-    return { txHash: r.hash, blockNumber: r.blockNumber };
+    return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
   }
 
-  async withdrawFromVault(vaultAddress: string, shares: string) {
-    if (!this.signer) throw new Error('Signer not initialized');
-    const c = new ethers.Contract(vaultAddress, this.vaultAbi, this.signer);
+  async withdrawFromVault(vaultAddress: string, shares: string, network?: string) {
+    const signer = await this.getSigner(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
     const tx = await c.withdraw(ethers.parseEther(shares));
     const r = await tx.wait();
-    return { txHash: r.hash, blockNumber: r.blockNumber };
+    return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
   }
 
-  async getUserBalance(vaultAddress: string, userAddress: string) {
-    if (!this.provider) return null;
-    const c = new ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
+  async getUserBalance(vaultAddress: string, userAddress: string, network?: string) {
+    const provider = await this.getProvider(network);
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, provider);
     const bal = ethers.formatEther(await c.balances(userAddress));
-    return { address: userAddress, balance: bal };
+    return { address: userAddress, balance: bal, network: network || 'mainnet' };
   }
 }

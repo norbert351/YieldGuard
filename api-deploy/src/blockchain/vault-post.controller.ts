@@ -1,28 +1,31 @@
 import { Controller, Post, Param, Body } from '@nestjs/common';
 import { BlockchainService } from './blockchain.service';
 
-// Separate controller for POST routes only — avoids NestJS 11 multi-decorator bug
 @Controller('blockchain/vaults')
 export class VaultPostController {
   constructor(private readonly blockchainService: BlockchainService) {}
 
   @Post(':address')
-  postVault(@Param('address') address: string) {
-    return this.blockchainService.getVaultInfo(address);
+  async postVault(@Param('address') address: string, @Body() body: any) {
+    const { network } = body || {};
+    const { getConfig } = (this.blockchainService as any);
+    const config = getConfig?.call(this.blockchainService, network);
+    const vaultAddr = address || config?.vaultAddress;
+    return this.blockchainService.getVaultInfo(vaultAddr, network);
   }
 
   @Post(':address/deposit')
-  deposit(@Param('address') address: string, @Body() body: { amount: string }) {
-    return this.blockchainService.depositToVault(address, body.amount);
+  async deposit(@Param('address') address: string, @Body() body: { amount: string; network?: string }) {
+    return this.blockchainService.depositToVault(address, body.amount, body.network);
   }
 
   @Post(':address/withdraw')
-  withdraw(@Param('address') address: string, @Body() body: { shares: string }) {
-    return this.blockchainService.withdrawFromVault(address, body.shares);
+  async withdraw(@Param('address') address: string, @Body() body: { shares: string; network?: string }) {
+    return this.blockchainService.withdrawFromVault(address, body.shares, body.network);
   }
 
   @Post(':address/balance/:user')
-  postBalance(@Param('address') address: string, @Param('user') user: string) {
-    return this.blockchainService.getUserBalance(address, user);
+  async postBalance(@Param('address') address: string, @Param('user') user: string, @Body() body: any) {
+    return this.blockchainService.getUserBalance(address, user, body?.network);
   }
 }
