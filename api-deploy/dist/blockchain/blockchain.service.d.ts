@@ -1,9 +1,10 @@
 import { OnModuleInit } from '@nestjs/common';
+import { ethers } from 'ethers';
 export declare class BlockchainService implements OnModuleInit {
     private vaultAbi;
     onModuleInit(): Promise<void>;
     private getConfig;
-    private getProvider;
+    getProvider(network?: string): Promise<ethers.JsonRpcProvider>;
     private getSigner;
     isConnected(): Promise<boolean>;
     getVaultInfo(vaultAddress: string, network?: string): Promise<{

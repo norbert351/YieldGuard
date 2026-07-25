@@ -33,7 +33,7 @@ export class BlockchainService implements OnModuleInit {
     return { rpcUrl, vaultAddress, privateKey, isTestnet };
   }
 
-  private async getProvider(network?: string) {
+  async getProvider(network?: string) {
     const { rpcUrl } = this.getConfig(network);
     return new ethers.JsonRpcProvider(rpcUrl);
   }
