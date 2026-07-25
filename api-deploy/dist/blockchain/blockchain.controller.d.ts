@@ -13,6 +13,14 @@ export declare class BlockchainController {
         totalShares: string;
         sharePrice: string;
     } | null>;
+    postVault(address: string): Promise<{
+        address: string;
+        name: any;
+        asset: any;
+        totalAssets: string;
+        totalShares: string;
+        sharePrice: string;
+    } | null>;
     deposit(address: string, body: {
         amount: string;
     }): Promise<{
@@ -26,4 +34,5 @@ export declare class BlockchainController {
         blockNumber: any;
     }>;
     getBalance(address: string, user: string): Promise<string | null>;
+    postBalance(address: string, user: string): Promise<string | null>;
 }

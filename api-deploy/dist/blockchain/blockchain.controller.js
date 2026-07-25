@@ -22,16 +22,22 @@ let BlockchainController = class BlockchainController {
     getStatus() {
         return { connected: this.blockchainService.isConnected() };
     }
-    async getVault(address) {
+    getVault(address) {
         return this.blockchainService.getVaultInfo(address);
     }
-    async deposit(address, body) {
+    postVault(address) {
+        return this.blockchainService.getVaultInfo(address);
+    }
+    deposit(address, body) {
         return this.blockchainService.depositToVault(address, body.amount);
     }
-    async withdraw(address, body) {
+    withdraw(address, body) {
         return this.blockchainService.withdrawFromVault(address, body.shares);
     }
-    async getBalance(address, user) {
+    getBalance(address, user) {
+        return this.blockchainService.getUserBalance(address, user);
+    }
+    postBalance(address, user) {
         return this.blockchainService.getUserBalance(address, user);
     }
 };
@@ -44,19 +50,25 @@ __decorate([
 ], BlockchainController.prototype, "getStatus", null);
 __decorate([
     (0, common_1.Get)('vaults/:address'),
+    __param(0, (0, common_1.Param)('address')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], BlockchainController.prototype, "getVault", null);
+__decorate([
     (0, common_1.Post)('vaults/:address'),
     __param(0, (0, common_1.Param)('address')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], BlockchainController.prototype, "getVault", null);
+    __metadata("design:returntype", void 0)
+], BlockchainController.prototype, "postVault", null);
 __decorate([
     (0, common_1.Post)('vaults/:address/deposit'),
     __param(0, (0, common_1.Param)('address')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], BlockchainController.prototype, "deposit", null);
 __decorate([
     (0, common_1.Post)('vaults/:address/withdraw'),
@@ -64,17 +76,24 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], BlockchainController.prototype, "withdraw", null);
 __decorate([
     (0, common_1.Get)('vaults/:address/balance/:user'),
+    __param(0, (0, common_1.Param)('address')),
+    __param(1, (0, common_1.Param)('user')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], BlockchainController.prototype, "getBalance", null);
+__decorate([
     (0, common_1.Post)('vaults/:address/balance/:user'),
     __param(0, (0, common_1.Param)('address')),
     __param(1, (0, common_1.Param)('user')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", Promise)
-], BlockchainController.prototype, "getBalance", null);
+    __metadata("design:returntype", void 0)
+], BlockchainController.prototype, "postBalance", null);
 exports.BlockchainController = BlockchainController = __decorate([
     (0, common_1.Controller)('blockchain'),
     __metadata("design:paramtypes", [blockchain_service_1.BlockchainService])
