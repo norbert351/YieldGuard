@@ -28,7 +28,7 @@ let BlockchainService = class BlockchainService {
     }
     async onModuleInit() {
         const rpcUrl = process.env.MAINNET_RPC_URL || process.env.X_LAYER_RPC || process.env.RPC_URL || 'http://127.0.0.1:8545';
-        const privateKey = process.env.PRIVATE_KEY || '';
+        const privateKey = process.env.YIELDGUARD_WALLET_PK || process.env.FOUNDRY_WALLET_PK || process.env.PRIVATE_KEY || '';
         try {
             this.provider = new ethers_1.ethers.JsonRpcProvider(rpcUrl);
             if (privateKey)
@@ -80,7 +80,7 @@ let BlockchainService = class BlockchainService {
         if (!this.provider)
             return null;
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
-        return ethers_1.ethers.formatEther(await c.balanceOf(userAddress));
+        return ethers_1.ethers.formatEther(await c.balances(userAddress));
     }
 };
 exports.BlockchainService = BlockchainService;

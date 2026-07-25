@@ -21,7 +21,7 @@ export class BlockchainService implements OnModuleInit {
 
   async onModuleInit() {
     const rpcUrl = process.env.MAINNET_RPC_URL || process.env.X_LAYER_RPC || process.env.RPC_URL || 'http://127.0.0.1:8545';
-    const privateKey = process.env.PRIVATE_KEY || '';
+    const privateKey = process.env.YIELDGUARD_WALLET_PK || process.env.FOUNDRY_WALLET_PK || process.env.PRIVATE_KEY || '';
     try {
       this.provider = new ethers.JsonRpcProvider(rpcUrl);
       if (privateKey) this.signer = new ethers.Wallet(privateKey, this.provider);
@@ -67,6 +67,6 @@ export class BlockchainService implements OnModuleInit {
   async getUserBalance(vaultAddress: string, userAddress: string) {
     if (!this.provider) return null;
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
-    return ethers.formatEther(await c.balanceOf(userAddress));
+    return ethers.formatEther(await c.balances(userAddress));
   }
 }
