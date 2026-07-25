@@ -9,8 +9,7 @@ export declare class AnalyticsController {
         annualizedReturn?: undefined;
         harvestCount?: undefined;
         vaultName?: undefined;
-        sharePrice?: undefined;
-        healthFactor?: undefined;
+        totalShares?: undefined;
     } | {
         status: string;
         message?: undefined;
@@ -18,15 +17,13 @@ export declare class AnalyticsController {
         annualizedReturn?: undefined;
         harvestCount?: undefined;
         vaultName?: undefined;
-        sharePrice?: undefined;
-        healthFactor?: undefined;
+        totalShares?: undefined;
     } | {
         totalReturn: number;
         annualizedReturn: number;
         harvestCount: number;
         vaultName: any;
-        sharePrice: number;
-        healthFactor: number;
+        totalShares: string;
         status?: undefined;
         message?: undefined;
     }>;

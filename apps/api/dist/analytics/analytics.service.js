@@ -17,7 +17,7 @@ let AnalyticsService = class AnalyticsService {
         this.blockchain = blockchain;
     }
     async getMetrics() {
-        const vaultAddress = process.env.VAULT_ADDRESS || '';
+        const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         const provider = this.blockchain.getProvider();
         if (!vaultAddress || !provider) {
             return { status: 'unconfigured', message: 'Set VAULT_ADDRESS env var' };
@@ -54,8 +54,7 @@ let AnalyticsService = class AnalyticsService {
                 annualizedReturn: Math.round(annualizedReturn * 10000) / 10000,
                 harvestCount,
                 vaultName: info.name,
-                sharePrice: parseFloat(info.sharePrice),
-                healthFactor: parseFloat(info.healthFactor),
+                totalShares: info.totalShares,
             };
         }
         catch {
@@ -63,7 +62,7 @@ let AnalyticsService = class AnalyticsService {
         }
     }
     async getHistory(days) {
-        const vaultAddress = process.env.VAULT_ADDRESS || '';
+        const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         const provider = this.blockchain.getProvider();
         if (!vaultAddress || !provider)
             return [];

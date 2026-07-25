@@ -17,7 +17,7 @@ let ProtocolsService = class ProtocolsService {
         this.blockchain = blockchain;
     }
     async getAll() {
-        const vaultAddress = process.env.VAULT_ADDRESS || '';
+        const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         if (!vaultAddress)
             return [];
         const provider = this.blockchain.getProvider();
@@ -45,7 +45,7 @@ let ProtocolsService = class ProtocolsService {
         }
     }
     async getRates() {
-        const vaultAddress = process.env.VAULT_ADDRESS || '';
+        const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         if (!vaultAddress)
             return [];
         const provider = this.blockchain.getProvider();

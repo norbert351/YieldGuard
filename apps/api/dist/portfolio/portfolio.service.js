@@ -17,7 +17,7 @@ let PortfolioService = class PortfolioService {
         this.blockchain = blockchain;
     }
     async getOverview() {
-        const vaultAddress = process.env.VAULT_ADDRESS || '';
+        const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         if (!vaultAddress) {
             return { status: 'unconfigured', message: 'Set VAULT_ADDRESS env var to read live data' };
         }
@@ -28,7 +28,6 @@ let PortfolioService = class PortfolioService {
             return {
                 totalValue: parseFloat(info.totalAssets),
                 sharePrice: parseFloat(info.sharePrice),
-                healthFactor: parseFloat(info.healthFactor),
                 vaultName: info.name,
                 asset: info.asset,
                 status: 'healthy',
@@ -39,7 +38,7 @@ let PortfolioService = class PortfolioService {
         }
     }
     async getPositions() {
-        const vaultAddress = process.env.VAULT_ADDRESS || '';
+        const vaultAddress = process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         if (!vaultAddress)
             return [];
         try {

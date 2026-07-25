@@ -16,19 +16,19 @@ let BlockchainService = class BlockchainService {
         this.vaultAbi = [
             'function deposit(uint256 _amount) external returns (uint256)',
             'function withdraw(uint256 _shares) external returns (uint256)',
-            'function balanceOf(address _user) view returns (uint256)',
-            'function totalAssets() view returns (uint256)',
+            'function balances(address) view returns (uint256)',
+            'function totalAssets_() view returns (uint256)',
             'function totalShares() view returns (uint256)',
-            'function sharePrice() view returns (uint256)',
-            'function healthFactor() view returns (uint256)',
             'function asset() view returns (address)',
             'function vaultName() view returns (string)',
-            'function getStrategies() view returns (address[])',
+            'function strategies(uint256) view returns (address)',
+            'function strategyAllocation(address) view returns (uint256)',
+            'function isStrategy(address) view returns (bool)',
         ];
     }
     async onModuleInit() {
-        const rpcUrl = process.env.RPC_URL || 'http://127.0.0.1:8545';
-        const privateKey = process.env.PRIVATE_KEY || '';
+        const rpcUrl = process.env.MAINNET_RPC_URL || process.env.X_LAYER_RPC || process.env.RPC_URL || 'http://127.0.0.1:8545';
+        const privateKey = process.env.YIELDGUARD_WALLET_PK || process.env.FOUNDRY_WALLET_PK || process.env.PRIVATE_KEY || '';
         try {
             this.provider = new ethers_1.ethers.JsonRpcProvider(rpcUrl);
             if (privateKey)
@@ -46,14 +46,13 @@ let BlockchainService = class BlockchainService {
             return null;
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
         try {
-            const [name, asset, totalAssets, totalShares, hf] = await Promise.all([
-                c.vaultName(), c.asset(), c.totalAssets(), c.totalShares(), c.healthFactor(),
+            const [name, asset, totalAssets, totalShares] = await Promise.all([
+                c.vaultName(), c.asset(), c.totalAssets_(), c.totalShares(),
             ]);
             return {
                 address: vaultAddress, name, asset,
                 totalAssets: ethers_1.ethers.formatEther(totalAssets),
                 totalShares: ethers_1.ethers.formatEther(totalShares),
-                healthFactor: ethers_1.ethers.formatEther(hf),
                 sharePrice: totalShares > 0n ? ethers_1.ethers.formatEther((totalAssets * 10n ** 18n) / totalShares) : '1.0',
             };
         }
@@ -81,7 +80,7 @@ let BlockchainService = class BlockchainService {
         if (!this.provider)
             return null;
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
-        return ethers_1.ethers.formatEther(await c.balanceOf(userAddress));
+        return ethers_1.ethers.formatEther(await c.balances(userAddress));
     }
 };
 exports.BlockchainService = BlockchainService;

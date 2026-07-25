@@ -11,7 +11,6 @@ export declare class BlockchainController {
         asset: any;
         totalAssets: string;
         totalShares: string;
-        healthFactor: string;
         sharePrice: string;
     } | null>;
     deposit(address: string, body: {
