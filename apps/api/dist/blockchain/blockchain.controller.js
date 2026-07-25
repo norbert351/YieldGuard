@@ -22,6 +22,9 @@ let BlockchainController = class BlockchainController {
     getStatus() {
         return { connected: this.blockchainService.isConnected() };
     }
+    postStatus() {
+        return { connected: this.blockchainService.isConnected(), method: 'POST' };
+    }
     getVault(address) {
         return this.blockchainService.getVaultInfo(address);
     }
@@ -48,6 +51,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], BlockchainController.prototype, "getStatus", null);
+__decorate([
+    (0, common_1.Post)('status'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], BlockchainController.prototype, "postStatus", null);
 __decorate([
     (0, common_1.Get)('vaults/:address'),
     __param(0, (0, common_1.Param)('address')),

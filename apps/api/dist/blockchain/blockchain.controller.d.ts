@@ -5,6 +5,10 @@ export declare class BlockchainController {
     getStatus(): {
         connected: boolean;
     };
+    postStatus(): {
+        connected: boolean;
+        method: string;
+    };
     getVault(address: string): Promise<{
         address: string;
         name: any;
