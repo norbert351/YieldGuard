@@ -44,6 +44,7 @@ __decorate([
 ], BlockchainController.prototype, "getStatus", null);
 __decorate([
     (0, common_1.Get)('vaults/:address'),
+    (0, common_1.Post)('vaults/:address'),
     __param(0, (0, common_1.Param)('address')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -67,6 +68,7 @@ __decorate([
 ], BlockchainController.prototype, "withdraw", null);
 __decorate([
     (0, common_1.Get)('vaults/:address/balance/:user'),
+    (0, common_1.Post)('vaults/:address/balance/:user'),
     __param(0, (0, common_1.Param)('address')),
     __param(1, (0, common_1.Param)('user')),
     __metadata("design:type", Function),

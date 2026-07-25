@@ -11,6 +11,7 @@ export class BlockchainController {
   }
 
   @Get('vaults/:address')
+  @Post('vaults/:address')
   async getVault(@Param('address') address: string) {
     return this.blockchainService.getVaultInfo(address);
   }
@@ -26,6 +27,7 @@ export class BlockchainController {
   }
 
   @Get('vaults/:address/balance/:user')
+  @Post('vaults/:address/balance/:user')
   async getBalance(@Param('address') address: string, @Param('user') user: string) {
     return this.blockchainService.getUserBalance(address, user);
   }
