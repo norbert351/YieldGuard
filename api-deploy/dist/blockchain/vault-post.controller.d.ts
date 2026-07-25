@@ -16,6 +16,7 @@ export declare class VaultPostController {
     }): Promise<{
         txHash: any;
         blockNumber: any;
+        allocation: string;
         network: string;
     }>;
     withdraw(address: string, body: {

@@ -87,9 +87,36 @@ let BlockchainService = class BlockchainService {
     async depositToVault(vaultAddress, amount, network) {
         const signer = await this.getSigner(network);
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, signer);
+        try {
+            await c.harvestAll();
+        }
+        catch { }
         const tx = await c.deposit(ethers_1.ethers.parseEther(amount));
         const r = await tx.wait();
-        return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
+        let allocation = 'none';
+        try {
+            const strats = await c.getStrategies();
+            if (strats.length > 0) {
+                const asset = await c.asset();
+                const idleAbi = ['function balanceOf(address) view returns (uint256)'];
+                const token = new ethers_1.ethers.Contract(asset, idleAbi, signer);
+                const idleBalance = await token.balanceOf(vaultAddress);
+                if (idleBalance > 0n) {
+                    const perStrategy = idleBalance / BigInt(strats.length);
+                    for (const strat of strats) {
+                        if (await c.isStrategy(strat)) {
+                            try {
+                                await c.allocateToStrategy(strat, perStrategy);
+                            }
+                            catch { }
+                        }
+                    }
+                    allocation = `split across ${strats.length} strategies`;
+                }
+            }
+        }
+        catch { }
+        return { txHash: r.hash, blockNumber: r.blockNumber, allocation, network: network || 'mainnet' };
     }
     async withdrawFromVault(vaultAddress, shares, network) {
         const signer = await this.getSigner(network);

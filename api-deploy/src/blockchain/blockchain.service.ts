@@ -79,9 +79,36 @@ export class BlockchainService implements OnModuleInit {
   async depositToVault(vaultAddress: string, amount: string, network?: string) {
     const signer = await this.getSigner(network);
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
+    
+    // 1. Harvest any existing yield first (share price goes up)
+    try { await c.harvestAll(); } catch {}
+    
+    // 2. Deposit USDC
     const tx = await c.deposit(ethers.parseEther(amount));
     const r = await tx.wait();
-    return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
+    
+    // 3. Auto-allocate idle USDC to strategies
+    let allocation = 'none';
+    try {
+      const strats: string[] = await c.getStrategies();
+      if (strats.length > 0) {
+        const asset = await c.asset();
+        const idleAbi = ['function balanceOf(address) view returns (uint256)'];
+        const token = new ethers.Contract(asset, idleAbi, signer);
+        const idleBalance = await token.balanceOf(vaultAddress);
+        if (idleBalance > 0n) {
+          const perStrategy = idleBalance / BigInt(strats.length);
+          for (const strat of strats) {
+            if (await c.isStrategy(strat)) {
+              try { await c.allocateToStrategy(strat, perStrategy); } catch {}
+            }
+          }
+          allocation = `split across ${strats.length} strategies`;
+        }
+      }
+    } catch {}
+    
+    return { txHash: r.hash, blockNumber: r.blockNumber, allocation, network: network || 'mainnet' };
   }
 
   async withdrawFromVault(vaultAddress: string, shares: string, network?: string) {
