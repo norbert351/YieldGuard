@@ -80,7 +80,8 @@ let BlockchainService = class BlockchainService {
         if (!this.provider)
             return null;
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
-        return ethers_1.ethers.formatEther(await c.balances(userAddress));
+        const bal = ethers_1.ethers.formatEther(await c.balances(userAddress));
+        return { address: userAddress, balance: bal };
     }
 };
 exports.BlockchainService = BlockchainService;

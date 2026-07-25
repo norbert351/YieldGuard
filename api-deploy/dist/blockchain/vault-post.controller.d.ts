@@ -22,5 +22,8 @@ export declare class VaultPostController {
         txHash: any;
         blockNumber: any;
     }>;
-    postBalance(address: string, user: string): Promise<string | null>;
+    postBalance(address: string, user: string): Promise<{
+        address: string;
+        balance: string;
+    } | null>;
 }

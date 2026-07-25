@@ -23,5 +23,8 @@ export declare class BlockchainService implements OnModuleInit {
         txHash: any;
         blockNumber: any;
     }>;
-    getUserBalance(vaultAddress: string, userAddress: string): Promise<string | null>;
+    getUserBalance(vaultAddress: string, userAddress: string): Promise<{
+        address: string;
+        balance: string;
+    } | null>;
 }

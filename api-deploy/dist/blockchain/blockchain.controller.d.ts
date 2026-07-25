@@ -37,6 +37,12 @@ export declare class BlockchainController {
         txHash: any;
         blockNumber: any;
     }>;
-    getBalance(address: string, user: string): Promise<string | null>;
-    postBalance(address: string, user: string): Promise<string | null>;
+    getBalance(address: string, user: string): Promise<{
+        address: string;
+        balance: string;
+    } | null>;
+    postBalance(address: string, user: string): Promise<{
+        address: string;
+        balance: string;
+    } | null>;
 }

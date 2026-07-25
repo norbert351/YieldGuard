@@ -67,6 +67,7 @@ export class BlockchainService implements OnModuleInit {
   async getUserBalance(vaultAddress: string, userAddress: string) {
     if (!this.provider) return null;
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, this.provider);
-    return ethers.formatEther(await c.balances(userAddress));
+    const bal = ethers.formatEther(await c.balances(userAddress));
+    return { address: userAddress, balance: bal };
   }
 }
