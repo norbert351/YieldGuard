@@ -10,12 +10,13 @@ exports.BlockchainModule = void 0;
 const common_1 = require("@nestjs/common");
 const blockchain_service_1 = require("./blockchain.service");
 const blockchain_controller_1 = require("./blockchain.controller");
+const vault_post_controller_1 = require("./vault-post.controller");
 let BlockchainModule = class BlockchainModule {
 };
 exports.BlockchainModule = BlockchainModule;
 exports.BlockchainModule = BlockchainModule = __decorate([
     (0, common_1.Module)({
-        controllers: [blockchain_controller_1.BlockchainController],
+        controllers: [blockchain_controller_1.BlockchainController, vault_post_controller_1.VaultPostController],
         providers: [blockchain_service_1.BlockchainService],
         exports: [blockchain_service_1.BlockchainService],
     })
