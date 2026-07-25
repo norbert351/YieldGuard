@@ -80,7 +80,12 @@ export class BlockchainService implements OnModuleInit {
     const signer = await this.getSigner(network);
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
     
-    // 1. Harvest any existing yield first (share price goes up)
+    // 0. Approve vault to spend USDC
+    const asset = await c.asset();
+    const erc20 = new ethers.Contract(asset, ['function approve(address,uint256) returns (bool)'], signer);
+    await erc20.approve(vaultAddress, ethers.MaxUint256);
+    
+    // 1. Harvest any existing yield first
     try { await c.harvestAll(); } catch {}
     
     // 2. Deposit USDC

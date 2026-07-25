@@ -87,6 +87,9 @@ let BlockchainService = class BlockchainService {
     async depositToVault(vaultAddress, amount, network) {
         const signer = await this.getSigner(network);
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, signer);
+        const asset = await c.asset();
+        const erc20 = new ethers_1.ethers.Contract(asset, ['function approve(address,uint256) returns (bool)'], signer);
+        await erc20.approve(vaultAddress, ethers_1.ethers.MaxUint256);
         try {
             await c.harvestAll();
         }
