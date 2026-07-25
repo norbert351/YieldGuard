@@ -20,7 +20,7 @@ let ProtocolsService = class ProtocolsService {
         const vaultAddress = process.env.TESTNET_VAULT_ADDRESS || process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         if (!vaultAddress)
             return [];
-        const provider = this.blockchain.getProvider();
+        const provider = await this.blockchain.getProvider();
         if (!provider)
             return [];
         try {
@@ -48,7 +48,7 @@ let ProtocolsService = class ProtocolsService {
         const vaultAddress = process.env.TESTNET_VAULT_ADDRESS || process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
         if (!vaultAddress)
             return [];
-        const provider = this.blockchain.getProvider();
+        const provider = await this.blockchain.getProvider();
         if (!provider)
             return [];
         try {

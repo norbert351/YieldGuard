@@ -8,7 +8,7 @@ export class ProtocolsService {
   async getAll() {
     const vaultAddress = process.env.TESTNET_VAULT_ADDRESS || process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
     if (!vaultAddress) return [];
-    const provider = this.blockchain.getProvider();
+    const provider = await this.blockchain.getProvider();
     if (!provider) return [];
 
     try {
@@ -33,7 +33,7 @@ export class ProtocolsService {
   async getRates() {
     const vaultAddress = process.env.TESTNET_VAULT_ADDRESS || process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
     if (!vaultAddress) return [];
-    const provider = this.blockchain.getProvider();
+    const provider = await this.blockchain.getProvider();
     if (!provider) return [];
 
     try {

@@ -45,7 +45,7 @@ let PortfolioService = class PortfolioService {
             const info = await this.blockchain.getVaultInfo(vaultAddress);
             if (!info)
                 return [];
-            const provider = this.blockchain.getProvider();
+            const provider = await this.blockchain.getProvider();
             if (!provider)
                 return [];
             const vaultAbi = ['function getStrategies() view returns (address[])', 'function strategyCount() view returns (uint256)'];

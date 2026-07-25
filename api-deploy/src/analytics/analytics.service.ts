@@ -7,7 +7,7 @@ export class AnalyticsService {
 
   async getMetrics() {
     const vaultAddress = process.env.TESTNET_VAULT_ADDRESS || process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
-    const provider = this.blockchain.getProvider();
+    const provider = await this.blockchain.getProvider();
     if (!vaultAddress || !provider) {
       return { status: 'unconfigured', message: 'Set VAULT_ADDRESS env var' };
     }
@@ -60,7 +60,7 @@ export class AnalyticsService {
 
   async getHistory(days: number) {
     const vaultAddress = process.env.TESTNET_VAULT_ADDRESS || process.env.MAINNET_VAULT_ADDRESS || process.env.VAULT_ADDRESS || '';
-    const provider = this.blockchain.getProvider();
+    const provider = await this.blockchain.getProvider();
     if (!vaultAddress || !provider) return [];
 
     try {
