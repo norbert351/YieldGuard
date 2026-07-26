@@ -9,6 +9,9 @@ export declare class VaultPostController {
         totalAssets: string;
         totalShares: string;
         sharePrice: string;
+    } | {
+        error: any;
+        detail: string;
     } | null>;
     deposit(address: string, body: {
         amount: string;
@@ -46,6 +49,9 @@ export declare class VaultPostController {
         address: string;
         balance: string;
         network: string;
+    } | {
+        error: any;
+        detail: string;
     }>;
     addStrategy(address: string, body: {
         strategy: string;
@@ -55,6 +61,9 @@ export declare class VaultPostController {
         blockNumber: any;
         strategy: string;
         network: string;
+    } | {
+        error: any;
+        detail: string;
     }>;
     allocate(address: string, body: {
         strategy: string;
@@ -66,14 +75,23 @@ export declare class VaultPostController {
         strategy: string;
         amount: string;
         network: string;
+    } | {
+        error: any;
+        detail: string;
     }>;
     harvest(address: string, body: any): Promise<{
         txHash: any;
         blockNumber: any;
         network: string;
+    } | {
+        error: any;
+        detail: string;
     }>;
     strategies(address: string, body: any): Promise<{
         address: string;
         allocated: string;
-    }[]>;
+    }[] | {
+        error: any;
+        detail: string;
+    }>;
 }

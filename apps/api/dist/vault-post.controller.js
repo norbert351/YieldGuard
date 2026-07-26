@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VaultPostController = void 0;
 const common_1 = require("@nestjs/common");
@@ -156,6 +157,6 @@ __decorate([
 ], VaultPostController.prototype, "strategies", null);
 exports.VaultPostController = VaultPostController = __decorate([
     (0, common_1.Controller)('blockchain/vaults'),
-    __metadata("design:paramtypes", [blockchain_service_1.BlockchainService])
+    __metadata("design:paramtypes", [typeof (_a = typeof blockchain_service_1.BlockchainService !== "undefined" && blockchain_service_1.BlockchainService) === "function" ? _a : Object])
 ], VaultPostController);
 //# sourceMappingURL=vault-post.controller.js.map
