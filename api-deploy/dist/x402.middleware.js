@@ -13,7 +13,7 @@ const X402_PAY_TO = process.env.X402_PAY_TO || '0xe51a8f15180e373897dfa7b840b17c
 const XLAYER_CHAIN_ID = 196;
 const USDT_TOKEN = '0x779ded0c9e1022225f8e0630b35a9b54be713736';
 const ROUTE_FEES = {
-    '/api/blockchain': 0.1,
+    '/blockchain': 0.1,
 };
 function getFeeForPath(path) {
     for (const [prefix, fee] of Object.entries(ROUTE_FEES)) {
@@ -41,7 +41,7 @@ function buildChallenge(amount, resource) {
 }
 let X402Middleware = class X402Middleware {
     use(req, res, next) {
-        const isBlockchainRoute = req.path.startsWith('/api/blockchain');
+        const isBlockchainRoute = req.path.startsWith('/blockchain');
         if (!isBlockchainRoute) {
             return next();
         }
