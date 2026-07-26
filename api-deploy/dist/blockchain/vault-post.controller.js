@@ -20,11 +20,16 @@ let VaultPostController = class VaultPostController {
         this.blockchainService = blockchainService;
     }
     async postVault(address, body) {
-        const { network } = body || {};
-        const { getConfig } = this.blockchainService;
-        const config = getConfig?.call(this.blockchainService, network);
-        const vaultAddr = address || config?.vaultAddress;
-        return this.blockchainService.getVaultInfo(vaultAddr, network);
+        try {
+            const { network } = body || {};
+            const { getConfig } = this.blockchainService;
+            const config = getConfig?.call(this.blockchainService, network);
+            const vaultAddr = address || config?.vaultAddress;
+            return await this.blockchainService.getVaultInfo(vaultAddr, network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'vault info failed', detail: String(e) };
+        }
     }
     async deposit(address, body) {
         try {
@@ -43,19 +48,44 @@ let VaultPostController = class VaultPostController {
         }
     }
     async postBalance(address, user, body) {
-        return this.blockchainService.getUserBalance(address, user, body?.network);
+        try {
+            return await this.blockchainService.getUserBalance(address, user, body?.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'balance check failed', detail: String(e) };
+        }
     }
     async addStrategy(address, body) {
-        return this.blockchainService.addStrategy(address, body.strategy, body.network);
+        try {
+            return await this.blockchainService.addStrategy(address, body.strategy, body.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'add strategy failed', detail: String(e) };
+        }
     }
     async allocate(address, body) {
-        return this.blockchainService.allocateToStrategy(address, body.strategy, body.amount, body.network);
+        try {
+            return await this.blockchainService.allocateToStrategy(address, body.strategy, body.amount, body.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'allocate failed', detail: String(e) };
+        }
     }
     async harvest(address, body) {
-        return this.blockchainService.harvestAll(address, body?.network);
+        try {
+            return await this.blockchainService.harvestAll(address, body?.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'harvest failed', detail: String(e) };
+        }
     }
     async strategies(address, body) {
-        return this.blockchainService.getStrategies(address, body?.network);
+        try {
+            return await this.blockchainService.getStrategies(address, body?.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'strategies failed', detail: String(e) };
+        }
     }
 };
 exports.VaultPostController = VaultPostController;

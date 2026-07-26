@@ -9,16 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.X402Middleware = void 0;
 const common_1 = require("@nestjs/common");
 const ethers = require("ethers");
-const SELLER_PK = process.env.FOUNDRY_WALLET_PK || process.env.YIELDGUARD_WALLET_PK || '';
-const SELLER_ADDRESS = SELLER_PK ? new ethers.Wallet(SELLER_PK).address : null;
+const X402_PAY_TO = process.env.X402_PAY_TO || '0xe51a8f15180e373897dfa7b840b17cb5769f249f';
 const XLAYER_CHAIN_ID = 196;
 const USDT_TOKEN = '0x779ded0c9e1022225f8e0630b35a9b54be713736';
 const ROUTE_FEES = {
-    '/api/simulation': 0.001,
-    '/api/portfolio': 0.001,
-    '/api/protocols': 0.001,
-    '/api/analytics': 0.001,
-    '/api/blockchain': 0.001,
+    '/api/blockchain': 0.1,
 };
 function getFeeForPath(path) {
     for (const [prefix, fee] of Object.entries(ROUTE_FEES)) {
@@ -36,7 +31,7 @@ function buildChallenge(amount, resource) {
                 chainId: XLAYER_CHAIN_ID,
                 asset: USDT_TOKEN,
                 amount: String(Math.round(amount * 1e6)),
-                payTo: SELLER_ADDRESS,
+                payTo: X402_PAY_TO,
                 maxTimeoutSeconds: 60,
                 description: `ForgeVault: ${resource}`,
                 extra: { name: 'Tether USD', version: '1' },
@@ -63,7 +58,7 @@ let X402Middleware = class X402Middleware {
                     if (String(accepted.chainId) !== String(XLAYER_CHAIN_ID)) {
                         return res.status(402).json({ error: 'invalid_payment', message: `chain mismatch` });
                     }
-                    if (accepted.payTo?.toLowerCase() !== SELLER_ADDRESS?.toLowerCase()) {
+                    if (accepted.payTo?.toLowerCase() !== X402_PAY_TO.toLowerCase()) {
                         return res.status(402).json({ error: 'invalid_payment', message: `payTo mismatch` });
                     }
                     req.x402 = { paid: true };
@@ -72,7 +67,7 @@ let X402Middleware = class X402Middleware {
                 if (decoded.payload && decoded.signature) {
                     const message = typeof decoded.payload === 'string' ? decoded.payload : JSON.stringify(decoded.payload);
                     const recovered = ethers.verifyMessage(message, decoded.signature);
-                    if (recovered.toLowerCase() === SELLER_ADDRESS?.toLowerCase()) {
+                    if (recovered.toLowerCase() === X402_PAY_TO.toLowerCase()) {
                         req.x402 = { paid: true };
                         return next();
                     }
@@ -92,7 +87,7 @@ let X402Middleware = class X402Middleware {
             error: 'payment_required',
             message: 'Payment required via OKX Agent Payments Protocol (x402).',
             amount_usdt: fee,
-            pay_to: SELLER_ADDRESS,
+            pay_to: X402_PAY_TO,
             network: `eip155:${XLAYER_CHAIN_ID}`,
             chain_id: XLAYER_CHAIN_ID,
             asset: USDT_TOKEN,
