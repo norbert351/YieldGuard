@@ -73,6 +73,9 @@ let VaultPostController = class VaultPostController {
     async getStrategies(address) {
         return { error: 'use POST', message: 'This endpoint requires POST with payment' };
     }
+    async getHarvest(address) {
+        return { error: 'use POST', message: 'This endpoint requires POST with payment' };
+    }
 };
 exports.VaultPostController = VaultPostController;
 __decorate([
@@ -140,6 +143,11 @@ __decorate([
     __param(0, (0, common_1.Param)('address')),
     __metadata("design:type", Function), __metadata("design:paramtypes", [String]), __metadata("design:returntype", Promise)
 ], VaultPostController.prototype, "getStrategies", null);
+__decorate([
+    (0, common_1.Get)(':address/harvest'),
+    __param(0, (0, common_1.Param)('address')),
+    __metadata("design:type", Function), __metadata("design:paramtypes", [String]), __metadata("design:returntype", Promise)
+], VaultPostController.prototype, "getHarvest", null);
 exports.VaultPostController = VaultPostController = __decorate([
     (0, common_1.Controller)('blockchain/vaults'),
     __metadata("design:paramtypes", [blockchain_service_1.BlockchainService])
