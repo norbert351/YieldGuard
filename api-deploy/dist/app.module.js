@@ -13,12 +13,9 @@ const portfolio_module_1 = require("./portfolio/portfolio.module");
 const protocols_module_1 = require("./protocols/protocols.module");
 const analytics_module_1 = require("./analytics/analytics.module");
 const blockchain_module_1 = require("./blockchain/blockchain.module");
-const x402_middleware_1 = require("./x402.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer
-            .apply(x402_middleware_1.X402Middleware)
-            .forRoutes('*');
+        // X402 is now handled by X402Guard (APP_GUARD) — no middleware needed
     }
 };
 exports.AppModule = AppModule;
@@ -33,4 +30,3 @@ exports.AppModule = AppModule = __decorate([
         ],
     })
 ], AppModule);
-//# sourceMappingURL=app.module.js.map
