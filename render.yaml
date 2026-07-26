@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: starter
     buildCommand: echo build skipped; echo done
-    startCommand: node apps/api/dist/main.js
+    startCommand: node api-deploy/dist/main.js
     envVars:
       - key: NODE_VERSION
         value: '22'
