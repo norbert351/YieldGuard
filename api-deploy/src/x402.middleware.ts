@@ -14,7 +14,7 @@ const USDT_TOKEN = '0x779ded0c9e1022225f8e0630b35a9b54be713736';
 
 // Fee mapping per route — all blockchain services at 0.1 USDT
 const ROUTE_FEES: Record<string, number> = {
-  '/blockchain': 0.1,
+  '/api/blockchain': 0.1,
 };
 
 function getFeeForPath(path: string): number {
@@ -46,8 +46,8 @@ function buildChallenge(amount: number, resource: string) {
 export class X402Middleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     // All requests to blockchain routes require payment — no free bypass
-    // Note: NestJS strips the /api global prefix, so path is /blockchain/...
-    const isBlockchainRoute = req.path.startsWith('/blockchain');
+    // Middleware receives full path including /api global prefix
+    const isBlockchainRoute = req.path.startsWith('/api/blockchain');
     if (!isBlockchainRoute) {
       return next();
     }
