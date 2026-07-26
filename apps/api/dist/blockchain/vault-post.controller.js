@@ -27,10 +27,20 @@ let VaultPostController = class VaultPostController {
         return this.blockchainService.getVaultInfo(vaultAddr, network);
     }
     async deposit(address, body) {
-        return this.blockchainService.depositToVault(address, body.amount, body.network);
+        try {
+            return await this.blockchainService.depositToVault(address, body.amount, body.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'deposit failed', detail: String(e) };
+        }
     }
     async withdraw(address, body) {
-        return this.blockchainService.withdrawFromVault(address, body.shares, body.network);
+        try {
+            return await this.blockchainService.withdrawFromVault(address, body.shares, body.network);
+        }
+        catch (e) {
+            return { error: e?.reason || e?.message || 'withdraw failed', detail: String(e) };
+        }
     }
     async postBalance(address, user, body) {
         return this.blockchainService.getUserBalance(address, user, body?.network);

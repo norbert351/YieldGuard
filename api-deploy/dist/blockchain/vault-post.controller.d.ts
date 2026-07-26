@@ -27,6 +27,9 @@ export declare class VaultPostController {
         network: string;
         error?: undefined;
         message?: undefined;
+    } | {
+        error: any;
+        detail: string;
     }>;
     withdraw(address: string, body: {
         shares: string;
@@ -35,6 +38,9 @@ export declare class VaultPostController {
         txHash: any;
         blockNumber: any;
         network: string;
+    } | {
+        error: any;
+        detail: string;
     }>;
     postBalance(address: string, user: string, body: any): Promise<{
         address: string;
