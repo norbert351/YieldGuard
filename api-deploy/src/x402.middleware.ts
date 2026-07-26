@@ -45,12 +45,8 @@ function buildChallenge(amount: number, resource: string) {
 @Injectable()
 export class X402Middleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    // All requests to blockchain routes require payment — no free bypass
-    // Middleware receives full path including /api global prefix
-    const isBlockchainRoute = req.path.startsWith('/api/blockchain');
-    if (!isBlockchainRoute) {
-      return next();
-    }
+    // DEBUG: Always return 402 to verify middleware is loaded
+    return res.status(402).json({ error: 'middleware_active', path: req.path, method: req.method });
 
     // Check for payment proof
     const auth = (req.headers['payment-signature'] || req.headers['PAYMENT-SIGNATURE'] || 
