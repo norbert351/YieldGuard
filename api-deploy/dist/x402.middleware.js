@@ -41,7 +41,8 @@ function buildChallenge(amount, resource) {
 }
 let X402Middleware = class X402Middleware {
     use(req, res, next) {
-        if (req.method === 'GET') {
+        const isBlockchainRoute = req.path.startsWith('/api/blockchain');
+        if (!isBlockchainRoute) {
             return next();
         }
         const auth = (req.headers['payment-signature'] || req.headers['PAYMENT-SIGNATURE'] ||

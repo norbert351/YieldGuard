@@ -45,9 +45,9 @@ function buildChallenge(amount: number, resource: string) {
 @Injectable()
 export class X402Middleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    // All POST requests to /api/blockchain require payment
-    // GET requests allowed without payment for health checks
-    if (req.method === 'GET') {
+    // All requests to /api/blockchain require payment — no free bypass
+    const isBlockchainRoute = req.path.startsWith('/api/blockchain');
+    if (!isBlockchainRoute) {
       return next();
     }
 
