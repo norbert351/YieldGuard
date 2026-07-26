@@ -2,14 +2,10 @@ import { BlockchainService } from './blockchain.service';
 export declare class BlockchainController {
     private readonly blockchainService;
     constructor(blockchainService: BlockchainService);
-    getStatus(): {
+    getStatus(): Promise<{
         connected: boolean;
-    };
-    postStatus(): {
-        connected: boolean;
-        method: string;
-    };
-    getVault(address: string): Promise<{
+    }>;
+    getVault(address: string, body?: any): Promise<{
         address: string;
         name: any;
         asset: any;
@@ -17,26 +13,9 @@ export declare class BlockchainController {
         totalShares: string;
         sharePrice: string;
     } | null>;
-    postVault(address: string): Promise<{
+    getBalance(address: string, user: string, body?: any): Promise<{
         address: string;
-        name: any;
-        asset: any;
-        totalAssets: string;
-        totalShares: string;
-        sharePrice: string;
-    } | null>;
-    deposit(address: string, body: {
-        amount: string;
-    }): Promise<{
-        txHash: any;
-        blockNumber: any;
+        balance: string;
+        network: string;
     }>;
-    withdraw(address: string, body: {
-        shares: string;
-    }): Promise<{
-        txHash: any;
-        blockNumber: any;
-    }>;
-    getBalance(address: string, user: string): Promise<string | null>;
-    postBalance(address: string, user: string): Promise<string | null>;
 }

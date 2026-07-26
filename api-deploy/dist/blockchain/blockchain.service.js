@@ -100,7 +100,8 @@ let BlockchainService = class BlockchainService {
             await c.harvestAll();
         }
         catch { }
-        const tx = await c.deposit(ethers_1.ethers.parseEther(amount));
+        const usdcDecimals = 6;
+        const tx = await c.deposit(ethers_1.ethers.parseUnits(amount, usdcDecimals));
         const r = await tx.wait();
         let allocation = 'none';
         try {
@@ -116,7 +117,7 @@ let BlockchainService = class BlockchainService {
                         for (const strat of strats) {
                             if (await c.isStrategy(strat)) {
                                 try {
-                                    await c.allocateToStrategy(strat, perStrategy);
+                                    await c.allocateToStrategy(strat, perStrategy.toString());
                                 }
                                 catch { }
                             }
@@ -132,7 +133,7 @@ let BlockchainService = class BlockchainService {
     async withdrawFromVault(vaultAddress, shares, network) {
         const signer = await this.getSigner(network);
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, signer);
-        const tx = await c.withdraw(ethers_1.ethers.parseEther(shares));
+        const tx = await c.withdraw(ethers_1.ethers.parseUnits(shares, 6));
         const r = await tx.wait();
         return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
     }
@@ -152,7 +153,7 @@ let BlockchainService = class BlockchainService {
     async allocateToStrategy(vaultAddress, strategyAddress, amount, network) {
         const signer = await this.getSigner(network);
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, signer);
-        const tx = await c.allocateToStrategy(strategyAddress, ethers_1.ethers.parseEther(amount));
+        const tx = await c.allocateToStrategy(strategyAddress, ethers_1.ethers.parseUnits(amount, 6));
         const r = await tx.wait();
         return { txHash: r.hash, blockNumber: r.blockNumber, strategy: strategyAddress, amount, network: network || 'mainnet' };
     }
