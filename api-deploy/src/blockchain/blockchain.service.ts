@@ -78,8 +78,15 @@ export class BlockchainService implements OnModuleInit {
 
   async depositToVault(vaultAddress: string, amount: string, network?: string) {
     const signer = await this.getSigner(network);
-    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
+    if (!signer) throw new Error('Wallet not configured');
     
+    // Check gas balance
+    const balance = await signer.provider!.getBalance(signer.address);
+    if (balance === 0n) {
+      return { error: 'wallet_unfunded', message: `Server wallet ${signer.address} has no gas. Send OKB to this address on ${network || 'mainnet'} to enable deposits.`, network: network || 'mainnet' };
+    }
+
+    const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
     // 0. Approve vault to spend USDC
     const asset = await c.asset();
     const erc20 = new ethers.Contract(asset, ['function approve(address,uint256) returns (bool)'], signer);

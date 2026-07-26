@@ -14,10 +14,19 @@ export declare class VaultPostController {
         amount: string;
         network?: string;
     }): Promise<{
+        error: string;
+        message: string;
+        network: string;
+        txHash?: undefined;
+        blockNumber?: undefined;
+        allocation?: undefined;
+    } | {
         txHash: any;
         blockNumber: any;
         allocation: string;
         network: string;
+        error?: undefined;
+        message?: undefined;
     }>;
     withdraw(address: string, body: {
         shares: string;

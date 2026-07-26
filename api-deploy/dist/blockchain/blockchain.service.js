@@ -86,6 +86,12 @@ let BlockchainService = class BlockchainService {
     }
     async depositToVault(vaultAddress, amount, network) {
         const signer = await this.getSigner(network);
+        if (!signer)
+            throw new Error('Wallet not configured');
+        const balance = await signer.provider.getBalance(signer.address);
+        if (balance === 0n) {
+            return { error: 'wallet_unfunded', message: `Server wallet ${signer.address} has no gas. Send OKB to this address on ${network || 'mainnet'} to enable deposits.`, network: network || 'mainnet' };
+        }
         const c = new ethers_1.ethers.Contract(vaultAddress, this.vaultAbi, signer);
         const asset = await c.asset();
         const erc20 = new ethers_1.ethers.Contract(asset, ['function approve(address,uint256) returns (bool)'], signer);

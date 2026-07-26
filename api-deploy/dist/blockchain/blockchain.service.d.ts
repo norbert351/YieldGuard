@@ -16,10 +16,19 @@ export declare class BlockchainService implements OnModuleInit {
         sharePrice: string;
     } | null>;
     depositToVault(vaultAddress: string, amount: string, network?: string): Promise<{
+        error: string;
+        message: string;
+        network: string;
+        txHash?: undefined;
+        blockNumber?: undefined;
+        allocation?: undefined;
+    } | {
         txHash: any;
         blockNumber: any;
         allocation: string;
         network: string;
+        error?: undefined;
+        message?: undefined;
     }>;
     withdrawFromVault(vaultAddress: string, shares: string, network?: string): Promise<{
         txHash: any;
