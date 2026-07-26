@@ -9,6 +9,8 @@ async function bootstrap() {
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     });
     app.setGlobalPrefix('api');
+    // Middleware to add deployment version header
+    app.use((req, res, next) => { res.set('X-Deploy', 'v3'); next(); });
     await app.listen(process.env.PORT || 4000);
     console.log(`YieldGuard API running on port ${process.env.PORT || 4000}`);
 }
