@@ -95,8 +95,9 @@ export class BlockchainService implements OnModuleInit {
     // 1. Harvest any existing yield first
     try { await c.harvestAll(); } catch {}
     
-    // 2. Deposit USDC
-    const tx = await c.deposit(ethers.parseEther(amount));
+    // 2. Deposit USDC — use USDC decimals (6) not ETH (18)
+    const usdcDecimals = 6;
+    const tx = await c.deposit(ethers.parseUnits(amount, usdcDecimals));
     const r = await tx.wait();
     
     // 3. Auto-allocate idle USDC to strategies (only if balance > 0)
@@ -113,7 +114,7 @@ export class BlockchainService implements OnModuleInit {
           if (perStrategy > 0n) {
             for (const strat of strats) {
               if (await c.isStrategy(strat)) {
-                try { await c.allocateToStrategy(strat, perStrategy); } catch {}
+                try { await c.allocateToStrategy(strat, perStrategy.toString()); } catch {}
               }
             }
             allocation = `split across ${strats.length} strategies`;
@@ -128,7 +129,7 @@ export class BlockchainService implements OnModuleInit {
   async withdrawFromVault(vaultAddress: string, shares: string, network?: string) {
     const signer = await this.getSigner(network);
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
-    const tx = await c.withdraw(ethers.parseEther(shares));
+    const tx = await c.withdraw(ethers.parseUnits(shares, 6));
     const r = await tx.wait();
     return { txHash: r.hash, blockNumber: r.blockNumber, network: network || 'mainnet' };
   }
@@ -151,7 +152,7 @@ export class BlockchainService implements OnModuleInit {
   async allocateToStrategy(vaultAddress: string, strategyAddress: string, amount: string, network?: string) {
     const signer = await this.getSigner(network);
     const c = new ethers.Contract(vaultAddress, this.vaultAbi, signer);
-    const tx = await c.allocateToStrategy(strategyAddress, ethers.parseEther(amount));
+    const tx = await c.allocateToStrategy(strategyAddress, ethers.parseUnits(amount, 6));
     const r = await tx.wait();
     return { txHash: r.hash, blockNumber: r.blockNumber, strategy: strategyAddress, amount, network: network || 'mainnet' };
   }
