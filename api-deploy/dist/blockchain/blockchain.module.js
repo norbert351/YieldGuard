@@ -8,17 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlockchainModule = void 0;
 const common_1 = require("@nestjs/common");
+const core_1 = require("@nestjs/core");
 const blockchain_service_1 = require("./blockchain.service");
 const blockchain_controller_1 = require("./blockchain.controller");
 const vault_post_controller_1 = require("./vault-post.controller");
+const x402_guard_1 = require("../x402.guard");
 let BlockchainModule = class BlockchainModule {
 };
 exports.BlockchainModule = BlockchainModule;
 exports.BlockchainModule = BlockchainModule = __decorate([
     (0, common_1.Module)({
         controllers: [blockchain_controller_1.BlockchainController, vault_post_controller_1.VaultPostController],
-        providers: [blockchain_service_1.BlockchainService],
+        providers: [
+            blockchain_service_1.BlockchainService,
+            { provide: core_1.APP_GUARD, useClass: x402_guard_1.X402Guard },
+        ],
         exports: [blockchain_service_1.BlockchainService],
     })
 ], BlockchainModule);
-//# sourceMappingURL=blockchain.module.js.map
