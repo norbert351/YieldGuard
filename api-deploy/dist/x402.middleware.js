@@ -41,7 +41,7 @@ function buildChallenge(amount, resource) {
 }
 let X402Middleware = class X402Middleware {
     use(req, res, next) {
-        if (req.method === 'GET' && !req.headers['payment-signature'] && !req.headers['x-payment']) {
+        if (req.method === 'GET') {
             return next();
         }
         const auth = (req.headers['payment-signature'] || req.headers['PAYMENT-SIGNATURE'] ||

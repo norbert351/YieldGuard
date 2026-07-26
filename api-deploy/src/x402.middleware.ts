@@ -21,7 +21,7 @@ function getFeeForPath(path: string): number {
   for (const [prefix, fee] of Object.entries(ROUTE_FEES)) {
     if (path.startsWith(prefix)) return fee;
   }
-  return 0.001; // default
+  return 0.001; // default fallback
 }
 
 function buildChallenge(amount: number, resource: string) {
@@ -45,9 +45,9 @@ function buildChallenge(amount: number, resource: string) {
 @Injectable()
 export class X402Middleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    // Skip GET requests for public info
-    if (req.method === 'GET' && !req.headers['payment-signature'] && !req.headers['x-payment']) {
-      // Allow GET without payment for basic info
+    // All POST requests to /api/blockchain require payment
+    // GET requests allowed without payment for health checks
+    if (req.method === 'GET') {
       return next();
     }
 
